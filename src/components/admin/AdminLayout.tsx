@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
@@ -8,8 +8,10 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../../stores/AuthContext';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -22,6 +24,13 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
 
   const currentPage = navItems.find(item => 
     item.end ? location.pathname === '/admin' : location.pathname.startsWith(item.to)
@@ -35,6 +44,13 @@ export function AdminLayout() {
           <h1 className="text-xl font-bold text-orange-500">DineQR</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500 hidden sm:inline">{currentPage?.label || 'Admin'}</span>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-lg"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
@@ -65,7 +81,12 @@ export function AdminLayout() {
             <h1 className={`font-bold text-orange-500 ${sidebarCollapsed ? 'text-base' : 'text-xl md:text-2xl'}`}>
               {sidebarCollapsed ? 'DQ' : 'DineQR'}
             </h1>
-            {!sidebarCollapsed && <p className="text-sm text-gray-500 mt-1">Admin Dashboard</p>}
+            {!sidebarCollapsed && (
+              <>
+                <p className="text-sm text-gray-500 mt-1">Admin Dashboard</p>
+                <p className="text-xs text-gray-400 mt-1">{user?.username} ({user?.role})</p>
+              </>
+            )}
           </div>
         </div>
         
@@ -110,6 +131,14 @@ export function AdminLayout() {
                 <span className="text-sm">Collapse</span>
               </>
             )}
+          </button>
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-2 px-4 py-3 min-h-[48px] text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1 ${sidebarCollapsed ? 'justify-center' : ''}`}
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
+            {!sidebarCollapsed && <span className="text-sm">Logout</span>}
           </button>
         </div>
       </aside>

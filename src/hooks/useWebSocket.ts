@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { wsUrl } from '../services/api';
+import { wsUrl, getToken } from '../services/api';
 import type { WebSocketMessage, Order, OrderItem } from '../types';
 
 type ConnectionType = 'admin' | 'table';
@@ -53,9 +53,18 @@ export function useWebSocket(type: ConnectionType, tableId?: string): {
 
   useEffect(() => {
     const connect = () => {
-      const endpoint = type === 'admin' 
-        ? `${wsUrl}/ws/admin` 
-        : `${wsUrl}/ws/table/${tableId}`;
+      let endpoint: string;
+
+      if (type === 'admin') {
+        const token = getToken();
+        if (!token) {
+          console.log('No auth token, skipping WebSocket connection');
+          return;
+        }
+        endpoint = `${wsUrl}/ws/admin?token=${token}`;
+      } else {
+        endpoint = `${wsUrl}/ws/table/${tableId}`;
+      }
 
       const ws = new WebSocket(endpoint);
       wsRef.current = ws;

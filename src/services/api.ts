@@ -48,14 +48,38 @@ function transformBillWithOrders(bill: any): BillWithOrders {
   };
 }
 
+export const TOKEN_KEY = 'auth_token';
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
   const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   });
+
+  if (response.status === 401) {
+    removeToken();
+    if (!url.includes('/auth/')) {
+      window.location.href = '/admin/login';
+    }
+    throw new Error('Session expired. Please login again.');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
@@ -66,6 +90,29 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  auth: {
+    login: async (data: import('../types').LoginRequest): Promise<import('../types').AuthResponse> => {
+      const response = await fetchJson<import('../types').AuthResponse>(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      setToken(response.access_token);
+      return response;
+    },
+    register: async (data: import('../types').RegisterRequest): Promise<import('../types').AuthResponse> => {
+      const response = await fetchJson<import('../types').AuthResponse>(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      setToken(response.access_token);
+      return response;
+    },
+    getMe: () => fetchJson<import('../types').User>(`${API_BASE}/api/auth/me`),
+    logout: () => {
+      removeToken();
+    },
+  },
+
   tables: {
     getAll: () => fetchJson<import('../types').Table[]>(`${API_BASE}/api/tables/`),
     getById: (id: string) => fetchJson<import('../types').Table>(`${API_BASE}/api/tables/${id}`),
