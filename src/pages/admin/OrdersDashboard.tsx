@@ -110,9 +110,9 @@ export function OrdersDashboard() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row md:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-5 lg:mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Orders Dashboard</h1>
           <div className="flex items-center gap-2 mt-1">
             <span className={`flex items-center gap-1 text-sm ${isConnected ? 'text-green-500' : 'text-gray-400'}`}>
               <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></span>
@@ -124,7 +124,7 @@ export function OrdersDashboard() {
         </div>
         <button
           onClick={() => setSoundEnabled(!soundEnabled)}
-          className={`p-2 rounded-lg ${soundEnabled ? 'text-orange-500 bg-orange-50' : 'text-gray-400 bg-gray-100'}`}
+          className={`p-2.5 min-h-[44px] min-w-[44px] rounded-lg transition-colors ${soundEnabled ? 'text-orange-500 bg-orange-50' : 'text-gray-400 bg-gray-100'}`}
           title={soundEnabled ? 'Sound On' : 'Sound Off'}
         >
           {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
@@ -132,15 +132,15 @@ export function OrdersDashboard() {
       </div>
 
       {orders.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 sm:p-12 text-center">
-          <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 lg:p-12 text-center">
+          <Bell className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3 md:mb-4" />
           <p className="text-gray-500">No active orders</p>
           <p className="text-sm text-gray-400 mt-1">New orders will appear here in real-time</p>
         </div>
       ) : (
         <>
-          {/* Mobile Tabs */}
-          <div className="lg:hidden flex gap-2 mb-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* Mobile/Tablet Tabs */}
+          <div className="lg:hidden flex gap-2 md:gap-3 mb-4 md:mb-5 overflow-x-auto pb-2 -mx-4 md:-mx-5 lg:-mx-6 px-4 md:px-5 lg:px-6 scrollbar-hide">
             {(['received', 'preparing', 'served'] as OrderStatus[]).map(status => {
               const config = statusConfig[status];
               const StatusIcon = config.icon;
@@ -150,10 +150,10 @@ export function OrdersDashboard() {
                 <button
                   key={status}
                   onClick={() => setActiveTab(status)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg whitespace-nowrap transition-colors ${
                     activeTab === status
                       ? `${config.bg} ${config.color} font-medium`
-                      : 'bg-gray-100 text-gray-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
                   <StatusIcon className="w-4 h-4" />
@@ -164,8 +164,8 @@ export function OrdersDashboard() {
             })}
           </div>
 
-          {/* Mobile View - Single Column */}
-          <div className="lg:hidden space-y-3">
+          {/* Mobile/Tablet View - Single Column */}
+          <div className="lg:hidden space-y-3 md:space-y-4">
             {ordersByStatus[activeTab].map(order => {
               const config = statusConfig[activeTab];
               const StatusIcon = config.icon;
@@ -175,23 +175,23 @@ export function OrdersDashboard() {
                   key={order.id}
                   className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
                 >
-                  <div className="p-4 border-b border-gray-100">
+                  <div className="p-4 md:p-5 border-b border-gray-100">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="font-bold text-lg">Table {order.table_number}</span>
+                        <span className="font-bold text-lg md:text-xl">Table {order.table_number}</span>
                         <p className="text-sm text-gray-500">{getTimeAgo(order.created_at)}</p>
                       </div>
-                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bg}`}>
+                      <div className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:py-2 rounded-full ${config.bg}`}>
                         <StatusIcon className={`w-4 h-4 ${config.color}`} />
                         <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <ul className="space-y-2">
+                  <div className="p-4 md:p-5">
+                    <ul className="space-y-2 md:space-y-3">
                       {order.items.map(item => (
-                        <li key={item.id} className="flex justify-between text-sm">
+                        <li key={item.id} className="flex justify-between text-sm md:text-base">
                           <span>
                             <span className="font-medium">{item.quantity}x</span>
                             <span className="ml-2">{item.menu_item_name}</span>
@@ -200,17 +200,17 @@ export function OrdersDashboard() {
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between">
+                    <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-100 flex justify-between">
                       <span className="font-medium">Total</span>
                       <span className="font-bold text-orange-500">₹{order.total_amount.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {config.next && (
-                    <div className="p-3 bg-gray-50 border-t border-gray-100">
+                    <div className="p-3 md:p-4 bg-gray-50 border-t border-gray-100">
                       <button
                         onClick={() => handleStatusUpdate(order.id, config.next!)}
-                        className="w-full py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600"
+                        className="w-full py-3 md:py-3.5 min-h-[48px] bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
                       >
                         Mark as {statusConfig[config.next!].label}
                       </button>
@@ -228,7 +228,7 @@ export function OrdersDashboard() {
           </div>
 
           {/* Desktop View - Three Columns */}
-          <div className="hidden lg:grid gap-6 grid-cols-3">
+          <div className="hidden lg:grid gap-5 lg:gap-6 grid-cols-3">
             {(['received', 'preparing', 'served'] as OrderStatus[]).map(status => {
               const config = statusConfig[status];
               const StatusIcon = config.icon;
@@ -244,13 +244,13 @@ export function OrdersDashboard() {
                     <span className="text-sm text-gray-500">({statusOrders.length})</span>
                   </div>
 
-                  <div className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto">
+                  <div className="space-y-3 md:space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto">
                     {statusOrders.map(order => (
                       <div
                         key={order.id}
                         className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
                       >
-                        <div className="p-4 border-b border-gray-100">
+                        <div className="p-4 md:p-5 border-b border-gray-100">
                           <div className="flex justify-between items-center">
                             <div>
                               <span className="font-bold text-lg">Table {order.table_number}</span>
@@ -260,8 +260,8 @@ export function OrdersDashboard() {
                           </div>
                         </div>
 
-                        <div className="p-4">
-                          <ul className="space-y-2">
+                        <div className="p-4 md:p-5">
+                          <ul className="space-y-2 md:space-y-3">
                             {order.items.map(item => (
                               <li key={item.id} className="flex justify-between text-sm">
                                 <span>
@@ -272,17 +272,17 @@ export function OrdersDashboard() {
                               </li>
                             ))}
                           </ul>
-                          <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between">
+                          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-100 flex justify-between">
                             <span className="font-medium">Total</span>
                             <span className="font-bold text-orange-500">₹{order.total_amount.toFixed(2)}</span>
                           </div>
                         </div>
 
                         {config.next && (
-                          <div className="p-3 bg-gray-50 border-t border-gray-100">
+                          <div className="p-3 md:p-4 bg-gray-50 border-t border-gray-100">
                             <button
                               onClick={() => handleStatusUpdate(order.id, config.next!)}
-                              className="w-full py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600"
+                              className="w-full py-2.5 md:py-3 min-h-[44px] bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
                             >
                               Mark as {statusConfig[config.next!].label}
                             </button>

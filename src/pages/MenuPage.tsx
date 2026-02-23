@@ -89,136 +89,140 @@ export function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 px-4">
-      <header className="bg-white shadow-sm sticky top-0 z-10 -mx-4 px-4 pt-2 safe-top">
-        <div className="py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Menu</h1>
-              {tableNumber && (
-                <p className="text-sm text-gray-500">Table {tableNumber}</p>
-              )}
-            </div>
-            <button
-              onClick={() => navigate('/cart')}
-              className="relative p-2 text-gray-600 hover:text-orange-500"
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {getItemCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getItemCount()}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        <div className="px-4 pb-3 -mx-4 overflow-x-auto">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === null
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              All
-            </button>
-            {categories.map(category => (
+    <div className="min-h-screen bg-gray-50 pb-24 px-4 md:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <header className="bg-white shadow-sm sticky top-0 z-10 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 pt-2 safe-top">
+          <div className="py-3 md:py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Menu</h1>
+                {tableNumber && (
+                  <p className="text-sm text-gray-500">Table {tableNumber}</p>
+                )}
+              </div>
               <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === category.id
+                onClick={() => navigate('/cart')}
+                className="relative p-2.5 min-h-[44px] min-w-[44px] text-gray-600 hover:text-orange-500 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ShoppingCart className="w-6 h-6" />
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-orange-500 text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center">
+                    {getItemCount()}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="pb-3 md:pb-4 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 md:gap-3">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === null
                     ? 'bg-orange-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {category.name}
+                All
               </button>
-            ))}
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedCategory === category.id
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="py-4">
-        <div className="space-y-4">
-          {filteredItems.map(item => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl shadow-sm p-4 flex gap-4"
-            >
-              {item.image_url ? (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-lg bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                  <span className="text-2xl">🍽️</span>
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">{item.name}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mt-1">
-                  {item.description}
-                </p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="font-bold text-orange-500">
-                    ₹{item.price.toFixed(2)}
-                  </span>
-                  {getItemQuantity(item.id) > 0 ? (
-                    <div className="flex items-center gap-2">
+        <main className="py-4 md:py-5 lg:py-6">
+          <div className="space-y-4 md:space-y-5">
+            {filteredItems.map(item => (
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow-sm p-4 md:p-5 flex gap-3 md:gap-4"
+              >
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                    <span className="text-xl md:text-2xl">🍽️</span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 truncate">{item.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mt-0.5 md:mt-1">
+                    {item.description}
+                  </p>
+                  <div className="flex justify-between items-center mt-2 md:mt-3">
+                    <span className="font-bold text-orange-500 text-base md:text-lg">
+                      ₹{item.price.toFixed(2)}
+                    </span>
+                    {getItemQuantity(item.id) > 0 ? (
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="w-11 h-11 md:w-10 md:h-10 min-h-[44px] min-w-[44px] md:min-h-[40px] md:min-w-[40px] rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-6 md:w-8 text-center font-medium text-base">
+                          {getItemQuantity(item.id)}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, getItemQuantity(item.id) + 1)}
+                          className="w-11 h-11 md:w-10 md:h-10 min-h-[44px] min-w-[44px] md:min-h-[40px] md:min-w-[40px] rounded-full bg-orange-500 flex items-center justify-center text-white hover:bg-orange-600 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        onClick={() => removeItem(item.id)}
-                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                        onClick={() => addItem(item)}
+                        className="px-5 py-2.5 min-h-[44px] bg-orange-500 text-white rounded-full text-sm font-medium hover:bg-orange-600 transition-colors"
                       >
-                        <Minus className="w-4 h-4" />
+                        Add
                       </button>
-                      <span className="w-8 text-center font-medium">
-                        {getItemQuantity(item.id)}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.id, getItemQuantity(item.id) + 1)}
-                        className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white hover:bg-orange-600"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => addItem(item)}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium hover:bg-orange-600"
-                    >
-                      Add
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No items available in this category.
+          {filteredItems.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              No items available in this category.
+            </div>
+          )}
+        </main>
+
+        {getItemCount() > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 md:p-5 safe-bottom">
+            <div className="max-w-2xl mx-auto">
+              <button
+                onClick={() => navigate('/cart')}
+                className="w-full py-3.5 md:py-4 min-h-[52px] bg-orange-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                View Cart ({getItemCount()} items)
+              </button>
+            </div>
           </div>
         )}
-      </main>
-
-      {getItemCount() > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 pb-6 safe-bottom">
-          <button
-            onClick={() => navigate('/cart')}
-            className="w-full py-3 bg-orange-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-orange-600"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            View Cart ({getItemCount()} items)
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -119,29 +119,29 @@ export function BillingPage() {
   return (
     <div>
       {/* Desktop View */}
-      <div className="hidden lg:grid gap-6 grid-cols-2">
+      <div className="hidden md:grid gap-5 md:gap-6 grid-cols-1 md:grid-cols-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Billing</h1>
-          <p className="text-gray-500 mb-6">Select a table to generate bill and process payment</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Billing</h1>
+          <p className="text-gray-500 mb-4 md:mb-6 text-sm md:text-base">Select a table to generate bill and process payment</p>
 
-          {sessions.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-              <Receipt className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+           {sessions.length === 0 ? (
+             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 text-center">
+               <Receipt className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3 md:mb-4" />
               <p className="text-gray-500">No active tables</p>
               <p className="text-sm text-gray-400 mt-1">Tables with orders will appear here</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {sessions.map(session => (
-                <button
-                  key={session.id}
-                  onClick={() => handleSelectSession(session)}
-                  className={`w-full p-4 rounded-xl border text-left transition-all ${
-                    selectedSession?.id === session.id
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-100 bg-white hover:border-gray-200'
-                  }`}
-                >
+             <div className="space-y-3">
+               {sessions.map(session => (
+                 <button
+                   key={session.id}
+                   onClick={() => handleSelectSession(session)}
+                   className={`w-full p-4 rounded-xl border text-left transition-all min-h-[60px]
+                     ${selectedSession?.id === session.id
+                       ? 'border-orange-500 bg-orange-50'
+                       : 'border-gray-100 bg-white hover:border-gray-200'
+                     }`}
+                 >
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="font-bold text-lg">Table {session.table_number}</span>
@@ -243,7 +243,7 @@ export function BillingPage() {
       </div>
 
       {/* Mobile View */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         {!selectedSession ? (
           <>
             <h1 className="text-xl font-bold text-gray-900 mb-2">Billing</h1>

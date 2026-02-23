@@ -4,6 +4,18 @@ import type { WebSocketMessage, Order, OrderItem } from '../types';
 
 type ConnectionType = 'admin' | 'table';
 
+// Exponential backoff with jitter configuration
+const INITIAL_DELAY = 1000; // 1 second
+const MAX_DELAY = 30000; // 30 seconds
+const MAX_RECONNECT_ATTEMPTS = 10;
+
+function calculateBackoff(attempt: number): number {
+  // Exponential backoff with jitter: min(1000 * 2^attempt + random, 30000)
+  const baseDelay = Math.min(INITIAL_DELAY * Math.pow(2, attempt), MAX_DELAY);
+  const jitter = Math.random() * 1000; // Add up to 1 second of jitter
+  return Math.min(baseDelay + jitter, MAX_DELAY);
+}
+
 function transformOrderItem(item: any): OrderItem {
   return {
     ...item,
@@ -37,6 +49,7 @@ export function useWebSocket(type: ConnectionType, tableId?: string): {
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
+  const reconnectAttemptRef = useRef<number>(0);
 
   useEffect(() => {
     const connect = () => {
@@ -49,6 +62,7 @@ export function useWebSocket(type: ConnectionType, tableId?: string): {
 
       ws.onopen = () => {
         setIsConnected(true);
+        reconnectAttemptRef.current = 0; // Reset attempt counter on successful connection
         console.log(`WebSocket connected: ${type}`);
       };
 
@@ -70,9 +84,19 @@ export function useWebSocket(type: ConnectionType, tableId?: string): {
       ws.onclose = () => {
         setIsConnected(false);
         console.log(`WebSocket disconnected: ${type}`);
-        reconnectTimeoutRef.current = window.setTimeout(() => {
-          connect();
-        }, 3000);
+        
+        // Implement exponential backoff with jitter
+        if (reconnectAttemptRef.current < MAX_RECONNECT_ATTEMPTS) {
+          const delay = calculateBackoff(reconnectAttemptRef.current);
+          console.log(`Reconnecting in ${Math.round(delay)}ms (attempt ${reconnectAttemptRef.current + 1})`);
+          
+          reconnectTimeoutRef.current = window.setTimeout(() => {
+            reconnectAttemptRef.current += 1;
+            connect();
+          }, delay);
+        } else {
+          console.error(`Max reconnection attempts (${MAX_RECONNECT_ATTEMPTS}) reached`);
+        }
       };
 
       ws.onerror = (error) => {

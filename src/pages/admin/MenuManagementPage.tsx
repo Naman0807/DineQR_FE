@@ -158,15 +158,15 @@ export function MenuManagementPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-5 lg:mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Menu Management</h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage categories and menu items</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Menu Management</h1>
+          <p className="text-gray-500 mt-1 text-sm md:text-base">Manage categories and menu items</p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
           <button
             onClick={() => setShowCategoryModal(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span className="sm:hidden">Category</span>
@@ -178,7 +178,7 @@ export function MenuManagementPage() {
               setEditingItem(null);
               setShowItemModal(true);
             }}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span className="sm:hidden">Item</span>
@@ -187,13 +187,13 @@ export function MenuManagementPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 md:mb-5 lg:mb-6">
         {/* Category Tabs */}
-        <div className="p-3 sm:p-4 border-b border-gray-100">
-          <div className="flex gap-2 overflow-x-auto -mx-1 px-1 sm:mx-0 sm:px-0">
+        <div className="p-3 md:p-4 border-b border-gray-100">
+          <div className="flex gap-2 overflow-x-auto -mx-1 px-1 md:mx-0 md:px-0 scrollbar-hide">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 md:px-4 py-2 min-h-[40px] rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 selectedCategory === null
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -207,7 +207,7 @@ export function MenuManagementPage() {
                 <div key={category.id} className="flex items-center gap-1">
                   <button
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    className={`px-3 md:px-4 py-2 min-h-[40px] rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                       selectedCategory === category.id
                         ? 'bg-orange-500 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -384,26 +384,26 @@ export function MenuManagementPage() {
       {/* Category Modal */}
       {showCategoryModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-            <h2 className="text-xl font-bold mb-4">Add Category</h2>
+          <div className="bg-white rounded-xl p-5 md:p-6 w-full max-w-md">
+            <h2 className="text-lg md:text-xl font-bold mb-4">Add Category</h2>
             <input
               type="text"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
               placeholder="Category name"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4"
+              className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4"
             />
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-2 md:gap-3 justify-end">
               <button
                 onClick={() => setShowCategoryModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-4 py-2.5 min-h-[44px] text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateCategory}
                 disabled={!categoryName.trim()}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300"
+                className="px-4 py-2.5 min-h-[44px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 transition-colors"
               >
                 Create
               </button>
@@ -415,18 +415,18 @@ export function MenuManagementPage() {
       {/* Item Modal */}
       {showItemModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg sm:text-xl font-bold mb-4">
+          <div className="bg-white rounded-xl p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg md:text-xl font-bold mb-4">
               {editingItem ? 'Edit Item' : 'Add Menu Item'}
             </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
                   value={itemForm.category_id}
                   onChange={(e) => setItemForm({ ...itemForm, category_id: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   disabled={!!editingItem}
                 >
                   {categories.map(cat => (
@@ -441,7 +441,7 @@ export function MenuManagementPage() {
                   type="text"
                   value={itemForm.name}
                   onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               
@@ -450,7 +450,7 @@ export function MenuManagementPage() {
                 <textarea
                   value={itemForm.description}
                   onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   rows={2}
                 />
               </div>
@@ -462,7 +462,7 @@ export function MenuManagementPage() {
                   step="0.01"
                   value={itemForm.price}
                   onChange={(e) => setItemForm({ ...itemForm, price: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               
@@ -472,7 +472,7 @@ export function MenuManagementPage() {
                   type="text"
                   value={itemForm.image_url}
                   onChange={(e) => setItemForm({ ...itemForm, image_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               
@@ -487,20 +487,20 @@ export function MenuManagementPage() {
               </label>
             </div>
             
-            <div className="flex gap-2 justify-end mt-6">
+            <div className="flex gap-2 md:gap-3 justify-end mt-5 md:mt-6">
               <button
                 onClick={() => {
                   setShowItemModal(false);
                   setEditingItem(null);
                 }}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-4 py-2.5 min-h-[44px] text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={editingItem ? handleUpdateItem : handleCreateItem}
                 disabled={!itemForm.name || !itemForm.category_id || itemForm.price <= 0}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300"
+                className="px-4 py-2.5 min-h-[44px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 transition-colors"
               >
                 {editingItem ? 'Update' : 'Create'}
               </button>
