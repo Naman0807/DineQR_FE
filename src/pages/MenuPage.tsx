@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { api } from '../services/api';
 import { useSession } from '../stores/SessionContext';
@@ -7,6 +7,7 @@ import { useCart } from '../stores/CartContext';
 import type { MenuItemWithCategory, MenuCategory } from '../types';
 
 export function MenuPage() {
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setSession, tableNumber, sessionId, qrToken } = useSession();
@@ -29,15 +30,32 @@ export function MenuPage() {
           return;
         }
 
-        if (!sessionId && token) {
-          const sessionData = await api.tables.getOrCreateSession(token);
+        if (!restaurantSlug && token) {
           const tableData = await api.tables.getByToken(token);
+          if (!tableData.restaurant_slug) {
+            setError('Restaurant not found');
+            setLoading(false);
+            return;
+          }
+          navigate(`/${tableData.restaurant_slug}/menu?table=${token}`, { replace: true });
+          return;
+        }
+
+        if (!restaurantSlug) {
+          setError('Restaurant not found');
+          setLoading(false);
+          return;
+        }
+
+        if (!sessionId && token) {
+          const sessionData = await api.tables.getOrCreateSession(token, restaurantSlug);
+          const tableData = await api.tables.getByToken(token, restaurantSlug);
           setSession(tableData.id, sessionData.table_number, sessionData.session_id, token);
         }
 
         const [itemsData, categoriesData] = await Promise.all([
-          api.menu.getItems(true),
-          api.menu.getCategories(),
+          api.menu.getItems(true, restaurantSlug),
+          api.menu.getCategories(restaurantSlug),
         ]);
 
         setMenuItems(itemsData);
@@ -50,7 +68,7 @@ export function MenuPage() {
     };
 
     initSession();
-  }, [token, sessionId, setSession]);
+  }, [token, sessionId, setSession, restaurantSlug]);
 
   const filteredItems = selectedCategory
     ? menuItems.filter(item => item.category_id === selectedCategory)
@@ -101,7 +119,7 @@ export function MenuPage() {
                 )}
               </div>
               <button
-                onClick={() => navigate('/cart')}
+                onClick={() => navigate(`/${restaurantSlug}/cart`)}
                 className="relative p-2.5 min-h-[44px] min-w-[44px] text-gray-600 hover:text-orange-500 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ShoppingCart className="w-6 h-6" />
@@ -213,7 +231,7 @@ export function MenuPage() {
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 md:p-5 safe-bottom">
             <div className="max-w-2xl mx-auto">
               <button
-                onClick={() => navigate('/cart')}
+                onClick={() => navigate(`/${restaurantSlug}/cart`)}
                 className="w-full py-3.5 md:py-4 min-h-[52px] bg-orange-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors"
               >
                 <ShoppingCart className="w-5 h-5" />

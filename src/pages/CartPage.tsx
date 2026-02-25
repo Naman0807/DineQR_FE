@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, MessageSquare } from 'lucide-react';
 import { useCart } from '../stores/CartContext';
 import { useSession } from '../stores/SessionContext';
@@ -7,6 +7,7 @@ import { api } from '../services/api';
 
 export function CartPage() {
   const navigate = useNavigate();
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const { items, removeItem, updateQuantity, updateSpecialInstructions, getTotal, clearCart } = useCart();
   const { sessionId, tableNumber } = useSession();
   const [submitting, setSubmitting] = useState(false);
@@ -19,20 +20,23 @@ export function CartPage() {
   };
 
   const handleSubmitOrder = async () => {
-    if (!sessionId || items.length === 0) return;
+    if (!sessionId || items.length === 0 || !restaurantSlug) return;
 
     setSubmitting(true);
     try {
-      await api.orders.create({
-        session_id: sessionId,
-        items: items.map(item => ({
-          menu_item_id: item.menu_item.id,
-          quantity: item.quantity,
-          special_instructions: item.special_instructions,
-        })),
-      });
+      await api.orders.create(
+        {
+          session_id: sessionId,
+          items: items.map(item => ({
+            menu_item_id: item.menu_item.id,
+            quantity: item.quantity,
+            special_instructions: item.special_instructions,
+          })),
+        },
+        restaurantSlug
+      );
       clearCart();
-      navigate('/orders');
+      navigate(`/${restaurantSlug}/orders`);
     } catch (error) {
       console.error('Failed to submit order:', error);
       alert('Failed to submit order. Please try again.');
@@ -47,7 +51,7 @@ export function CartPage() {
         <header className="bg-white shadow-sm sticky top-0 z-10 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 pt-2 safe-top">
           <div className="py-3 md:py-4 flex items-center gap-3 md:gap-4">
             <button
-              onClick={() => navigate('/menu')}
+              onClick={() => navigate(`/${restaurantSlug}/menu`)}
               className="p-2.5 min-h-[44px] min-w-[44px] -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-6 h-6" />
@@ -66,7 +70,7 @@ export function CartPage() {
             <div className="text-center py-12 md:py-16">
               <p className="text-gray-500 mb-4">Your cart is empty</p>
               <button
-                onClick={() => navigate('/menu')}
+                onClick={() => navigate(`/${restaurantSlug}/menu`)}
                 className="px-6 py-3 min-h-[44px] bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition-colors"
               >
                 Browse Menu

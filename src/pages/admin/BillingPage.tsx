@@ -78,6 +78,16 @@ export function BillingPage() {
       const fullBill = await api.bills.getBySession(selectedSession.id);
       setBill(fullBill);
     } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : '';
+      if (message.includes('bill already exists')) {
+        try {
+          const existingBill = await api.bills.getBySession(selectedSession.id);
+          setBill(existingBill);
+          return;
+        } catch {
+          // Fall through to standard error alert if fetching existing bill fails.
+        }
+      }
       console.error('Failed to generate bill:', error);
       alert('Failed to generate bill');
     } finally {

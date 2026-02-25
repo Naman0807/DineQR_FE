@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../stores/AuthContext';
 
@@ -12,8 +12,11 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { restaurantSlug } = useParams();
 
-  const from = (location.state as any)?.from?.pathname || '/admin';
+  const isSuperadmin = location.pathname.includes('superadmin');
+
+  const from = (location.state as any)?.from?.pathname || (isSuperadmin ? '/superadmin/dashboard' : (restaurantSlug ? `/${restaurantSlug}/admin` : '/admin'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +27,18 @@ export function LoginPage() {
       await login(username, password);
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Invalid credentials');
+      const message = err.message || 'Invalid credentials';
+      if (err.response?.status === 403) {
+        if (message.toLowerCase().includes('pending')) {
+          setError('Your restaurant account is pending approval. Please contact the superadmin.');
+        } else if (message.toLowerCase().includes('deactivated')) {
+          setError('Your restaurant account has been deactivated. Please contact the superadmin.');
+        } else {
+          setError(message);
+        }
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -38,7 +52,9 @@ export function LoginPage() {
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <LogIn className="w-8 h-8 text-orange-500" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isSuperadmin ? 'Superadmin Login' : 'Admin Login'}
+            </h1>
             <p className="text-gray-500 mt-1">Sign in to access admin dashboard</p>
           </div>
 
@@ -98,18 +114,20 @@ export function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
-              Don't have an account?{' '}
-              <Link to="/admin/register" className="text-orange-500 hover:text-orange-600 font-medium">
-                Create one
-              </Link>
-            </p>
-          </div>
+          {!isSuperadmin && (
+            <div className="mt-6 text-center">
+              <p className="text-gray-500 text-sm">
+                Don't have an account?{' '}
+                <Link to={restaurantSlug ? `/${restaurantSlug}/admin/register` : '/admin/register'} className="text-orange-500 hover:text-orange-600 font-medium">
+                  Create one
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 text-center">
-          <Link to="/menu" className="text-gray-500 hover:text-gray-700 text-sm">
+          <Link to={restaurantSlug ? `/${restaurantSlug}/menu` : '/menu'} className="text-gray-500 hover:text-gray-700 text-sm">
             ← Back to Menu
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Clock, ChefHat, CheckCircle } from 'lucide-react';
 import { useSession } from '../stores/SessionContext';
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -14,6 +14,7 @@ const statusConfig = {
 
 export function OrdersPage() {
   const navigate = useNavigate();
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const { sessionId, tableNumber, tableId } = useSession();
   const { isConnected, lastMessage } = useWebSocket('table', tableId || '');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -23,7 +24,7 @@ export function OrdersPage() {
     const fetchOrders = async () => {
       if (!sessionId) return;
       try {
-        const data = await api.orders.getBySession(sessionId);
+        const data = await api.orders.getBySession(sessionId, restaurantSlug);
         setOrders(data.sort((a, b) => 
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         ));
@@ -67,7 +68,7 @@ export function OrdersPage() {
         <header className="bg-white shadow-sm sticky top-0 z-10 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 pt-2 safe-top">
           <div className="py-3 md:py-4 flex items-center gap-3 md:gap-4">
             <button
-              onClick={() => navigate('/menu')}
+              onClick={() => navigate(`/${restaurantSlug}/menu`)}
               className="p-2.5 min-h-[44px] min-w-[44px] -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-6 h-6" />
@@ -90,7 +91,7 @@ export function OrdersPage() {
             <div className="text-center py-12 md:py-16">
               <p className="text-gray-500 mb-4">No orders yet</p>
               <button
-                onClick={() => navigate('/menu')}
+                onClick={() => navigate(`/${restaurantSlug}/menu`)}
                 className="px-6 py-3 min-h-[44px] bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition-colors"
               >
                 Browse Menu
@@ -145,7 +146,7 @@ export function OrdersPage() {
         <div className="fixed bottom-0 left-0 right-0 px-4 md:px-6 pb-5 md:pb-6 safe-bottom">
           <div className="max-w-2xl mx-auto">
             <button
-              onClick={() => navigate('/menu')}
+              onClick={() => navigate(`/${restaurantSlug}/menu`)}
               className="w-full py-3.5 md:py-4 min-h-[52px] bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
             >
               Order More

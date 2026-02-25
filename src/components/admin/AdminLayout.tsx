@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
@@ -13,19 +13,21 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../stores/AuthContext';
 
-const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/tables', icon: Users, label: 'Tables' },
-  { to: '/admin/menu', icon: UtensilsCrossed, label: 'Menu' },
-  { to: '/admin/billing', icon: Receipt, label: 'Billing' },
-];
-
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
+  const adminBasePath = restaurantSlug ? `/${restaurantSlug}/admin` : '/admin';
+
+  const navItems = [
+    { to: adminBasePath, icon: LayoutDashboard, label: 'Dashboard', end: true },
+    { to: `${adminBasePath}/tables`, icon: Users, label: 'Tables' },
+    { to: `${adminBasePath}/menu`, icon: UtensilsCrossed, label: 'Menu' },
+    { to: `${adminBasePath}/billing`, icon: Receipt, label: 'Billing' },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -33,7 +35,7 @@ export function AdminLayout() {
   };
 
   const currentPage = navItems.find(item => 
-    item.end ? location.pathname === '/admin' : location.pathname.startsWith(item.to)
+    item.end ? location.pathname === adminBasePath : location.pathname.startsWith(item.to)
   );
 
   return (
