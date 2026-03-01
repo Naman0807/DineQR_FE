@@ -2,18 +2,20 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, X, Check, Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '../../services/api';
 import type { MenuCategory, MenuItemWithCategory, MenuItemCreate, MenuItemUpdate } from '../../types';
+import styles from './MenuManagementPage.module.css';
 
 export function MenuManagementPage() {
+  // ... (state remains same)
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItemWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
+
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItemWithCategory | null>(null);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
-  
+
   const [categoryName, setCategoryName] = useState('');
   const [itemForm, setItemForm] = useState<MenuItemCreate>({
     category_id: '',
@@ -144,7 +146,7 @@ export function MenuManagementPage() {
     setShowItemModal(true);
   };
 
-  const filteredItems = selectedCategory 
+  const filteredItems = selectedCategory
     ? menuItems.filter(item => item.category_id === selectedCategory)
     : menuItems;
 
@@ -157,20 +159,19 @@ export function MenuManagementPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-5 lg:mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Menu Management</h1>
-          <p className="text-gray-500 mt-1 text-sm md:text-base">Manage categories and menu items</p>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.titleArea}>
+          <h1>Menu Management</h1>
+          <p className={styles.subtitle}>Manage categories and menu items</p>
         </div>
-        <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
+        <div className={styles.actions}>
           <button
             onClick={() => setShowCategoryModal(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className={`${styles.btn} ${styles.btnSecondary}`}
           >
             <Plus className="w-4 h-4" />
-            <span className="sm:hidden">Category</span>
-            <span className="hidden sm:inline">Add Category</span>
+            <span>Add Category</span>
           </button>
           <button
             onClick={() => {
@@ -178,48 +179,39 @@ export function MenuManagementPage() {
               setEditingItem(null);
               setShowItemModal(true);
             }}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            className={`${styles.btn} ${styles.btnPrimary}`}
           >
             <Plus className="w-4 h-4" />
-            <span className="sm:hidden">Item</span>
-            <span className="hidden sm:inline">Add Item</span>
+            <span>Add Item</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 md:mb-5 lg:mb-6">
-        {/* Category Tabs */}
-        <div className="p-3 md:p-4 border-b border-gray-100">
-          <div className="flex gap-2 overflow-x-auto -mx-1 px-1 md:mx-0 md:px-0 scrollbar-hide">
+      <div className={styles.card}>
+        <div className={styles.tabsArea}>
+          <div className={styles.tabsList}>
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-3 md:px-4 py-2 min-h-[40px] rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === null
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`${styles.tabBtn} ${selectedCategory === null ? styles.tabBtnActive : ''}`}
             >
               All ({menuItems.length})
             </button>
             {categories.map(category => {
               const count = menuItems.filter(i => i.category_id === category.id).length;
               return (
-                <div key={category.id} className="flex items-center gap-1">
+                <div key={category.id} className="flex items-center gap-1 group">
                   <button
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 md:px-4 py-2 min-h-[40px] rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                      selectedCategory === category.id
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`${styles.tabBtn} ${selectedCategory === category.id ? styles.tabBtnActive : ''}`}
                   >
                     {category.name} ({count})
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(category.id)}
-                    className="p-1 text-gray-400 hover:text-red-500 hidden sm:block"
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors sm:opacity-0 group-hover:opacity-100 hidden sm:block"
+                    title="Delete Category"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               );
@@ -227,142 +219,131 @@ export function MenuManagementPage() {
           </div>
         </div>
 
-        {/* Mobile Card View */}
-        <div className="lg:hidden divide-y divide-gray-100">
+        {/* Mobile View */}
+        <div className={`${styles.mobileList} lg:hidden`}>
           {filteredItems.map(item => (
-            <div key={item.id} className="p-4">
-              <div className="flex gap-3">
+            <div key={item.id} className={styles.mobileItem}>
+              <div className="flex gap-4">
                 {item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                  <img src={item.image_url} alt={item.name} className={styles.itemImage} />
                 ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className={styles.itemPlaceholder}>
                     <Package className="w-6 h-6 text-gray-400" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mb-1">
                     <div>
-                      <p className="font-medium text-gray-900">{item.name}</p>
+                      <h4 className={styles.itemName}>{item.name}</h4>
                       <p className="text-xs text-gray-500">{item.category?.name}</p>
                     </div>
-                    <span className="font-bold text-orange-500">₹{item.price.toFixed(2)}</span>
+                    <span className={styles.price}>₹{item.price.toFixed(2)}</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between mt-2">
+
+                  <div className="flex items-center justify-between mt-3">
                     <button
                       onClick={() => handleToggleAvailability(item)}
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
-                        item.is_available 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
-                      }`}
+                      className={`${styles.badge} ${item.is_available ? styles.badgeAvailable : styles.badgeUnavailable}`}
                     >
                       {item.is_available ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
                       {item.is_available ? 'Available' : 'Out of Stock'}
                     </button>
-                    
-                    <div className="flex gap-1">
+
+                    <div className={styles.actionBtns}>
                       <button
                         onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
-                        className="p-2 text-gray-400 hover:text-gray-600"
+                        className={styles.iconBtn}
                       >
                         {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                       <button
                         onClick={() => openEditModal(item)}
-                        className="p-2 text-gray-400 hover:text-orange-500"
+                        className={styles.iconBtn}
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="p-2 text-gray-400 hover:text-red-500"
+                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-                  
+
                   {expandedItem === item.id && item.description && (
-                    <p className="text-sm text-gray-500 mt-2 pt-2 border-t border-gray-100">{item.description}</p>
+                    <p className="text-sm text-gray-500 mt-3 pt-3 border-t border-gray-100 leading-relaxed">{item.description}</p>
                   )}
                 </div>
               </div>
             </div>
           ))}
-          
+
           {filteredItems.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className={styles.emptyState}>
               No menu items. Add your first item to get started.
             </div>
           )}
         </div>
 
-        {/* Desktop Table View */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
+        {/* Desktop View */}
+        <div className={`${styles.tableContainer} hidden lg:block`}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {filteredItems.map(item => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                <tr key={item.id}>
+                  <td>
+                    <div className={styles.itemInfo}>
                       {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                        <img src={item.image_url} alt={item.name} className={styles.itemImage} />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <div className={styles.itemPlaceholder}>
                           <Package className="w-5 h-5 text-gray-400" />
                         </div>
                       )}
                       <div>
-                        <p className="font-medium text-gray-900">{item.name}</p>
-                        <p className="text-sm text-gray-500 truncate max-w-xs">{item.description}</p>
+                        <div className={styles.itemName}>{item.name}</div>
+                        <div className={styles.itemDesc}>{item.description}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{item.category?.name}</td>
-                  <td className="px-4 py-3 text-sm font-medium">₹{item.price.toFixed(2)}</td>
-                  <td className="px-4 py-3">
+                  <td>
+                    <span className="text-sm text-gray-600">{item.category?.name}</span>
+                  </td>
+                  <td>
+                    <span className={styles.price}>₹{item.price.toFixed(2)}</span>
+                  </td>
+                  <td>
                     <button
                       onClick={() => handleToggleAvailability(item)}
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${
-                        item.is_available 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
-                      }`}
+                      className={`${styles.badge} ${item.is_available ? styles.badgeAvailable : styles.badgeUnavailable}`}
                     >
-                      {item.is_available ? (
-                        <>
-                          <Check className="w-3 h-3" />
-                          Available
-                        </>
-                      ) : (
-                        <>
-                          <X className="w-3 h-3" />
-                          Out of Stock
-                        </>
-                      )}
+                      {item.is_available ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      {item.is_available ? 'Available' : 'Out of Stock'}
                     </button>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
+                  <td>
+                    <div className={styles.actionBtns}>
                       <button
                         onClick={() => openEditModal(item)}
-                        className="p-2 text-gray-500 hover:text-orange-500 hover:bg-orange-50 rounded-lg"
+                        className={styles.iconBtn}
+                        title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteItem(item.id)}
-                        className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                        title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -372,9 +353,9 @@ export function MenuManagementPage() {
               ))}
             </tbody>
           </table>
-          
+
           {filteredItems.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className={styles.emptyState}>
               No menu items. Add your first item to get started.
             </div>
           )}
@@ -419,7 +400,7 @@ export function MenuManagementPage() {
             <h2 className="text-lg md:text-xl font-bold mb-4">
               {editingItem ? 'Edit Item' : 'Add Menu Item'}
             </h2>
-            
+
             <div className="space-y-3 md:space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -434,7 +415,7 @@ export function MenuManagementPage() {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
@@ -444,7 +425,7 @@ export function MenuManagementPage() {
                   className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
@@ -454,7 +435,7 @@ export function MenuManagementPage() {
                   rows={2}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
                 <input
@@ -465,7 +446,7 @@ export function MenuManagementPage() {
                   className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (optional)</label>
                 <input
@@ -475,7 +456,7 @@ export function MenuManagementPage() {
                   className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
-              
+
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -486,7 +467,7 @@ export function MenuManagementPage() {
                 <span className="text-sm text-gray-700">Available</span>
               </label>
             </div>
-            
+
             <div className="flex gap-2 md:gap-3 justify-end mt-5 md:mt-6">
               <button
                 onClick={() => {

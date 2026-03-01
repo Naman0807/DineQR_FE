@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { api, getToken, setToken, removeToken } from '../services/api';
+import { api } from '../services/api';
+import { getToken, setToken, removeToken } from '../services/tokenService';
 import type { User, RegisterRequest } from '../types';
 
 interface AuthContextType {
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (username: string, password: string) => {
     const response = await api.auth.login({ username, password });
+    // console.log(response);
     if (!response.access_token) {
       throw new Error('Login response missing access token');
     }

@@ -1,6 +1,10 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
 import type { MenuItem, MenuItemWithCategory, Order, OrderItem, Bill, BillWithOrders } from '../types';
+import apiClient from './apiClient';
+import { getToken, setToken, removeToken } from './tokenService';
+
+export { getToken, setToken, removeToken };
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function transformMenuItem(item: any): MenuItem {
   return {
@@ -48,298 +52,194 @@ function transformBillWithOrders(bill: any): BillWithOrders {
   };
 }
 
-export const TOKEN_KEY = 'auth_token';
-
-export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function removeToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
-async function fetchWithAuthNoJson(url: string, options?: RequestInit): Promise<void> {
-  const token = getToken();
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-
-  if (response.status === 401) {
-    removeToken();
-    throw new Error('Session expired. Please login again.');
-  }
-
-  if (response.status === 403) {
-    const error = await response.json().catch(() => ({ detail: 'Access denied' }));
-    throw new Error(error.detail || 'Access denied');
-  }
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-    throw new Error(error.detail || 'An error occurred');
-  }
-}
-
-async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const token = getToken();
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-
-  if (response.status === 401) {
-    removeToken();
-    if (!url.includes('/auth/')) {
-      window.location.href = '/admin/login';
-    }
-    throw new Error('Session expired. Please login again.');
-  }
-
-  if (response.status === 403) {
-    const error = await response.json().catch(() => ({ detail: 'Access denied' }));
-    if (error.detail?.includes('pending') || error.detail?.includes('deactivated') || error.status === 'pending' || error.status === 'deactivated') {
-      removeToken();
-      window.location.href = '/admin/suspended';
-    }
-    throw new Error(error.detail || 'Access denied');
-  }
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-    throw new Error(error.detail || 'An error occurred');
-  }
-
-  return response.json();
-}
-
 export const api = {
   auth: {
     login: async (data: import('../types').LoginRequest): Promise<import('../types').AuthResponse> => {
-      const response = await fetchJson<import('../types').AuthResponse>(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      if (!response.access_token) {
+      const response = await apiClient.post<import('../types').AuthResponse>('/api/auth/login', data);
+      const authData = response.data;
+      if (!authData.access_token) {
         throw new Error('Login response missing access token');
       }
-      setToken(response.access_token);
-      return response;
+      setToken(authData.access_token);
+      return authData;
     },
     register: async (data: import('../types').RegisterRequest): Promise<import('../types').AuthResponse> => {
-      const response = await fetchJson<import('../types').AuthResponse>(`${API_BASE}/api/auth/register`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      if (response.access_token) {
-        setToken(response.access_token);
+      const response = await apiClient.post<import('../types').AuthResponse>('/api/auth/register', data);
+      const authData = response.data;
+      if (authData.access_token) {
+        setToken(authData.access_token);
       }
-      return response;
+      return authData;
     },
-    getMe: () => fetchJson<import('../types').User>(`${API_BASE}/api/auth/me`),
+    getMe: async () => {
+      const response = await apiClient.get<import('../types').User>('/api/auth/me');
+      return response.data;
+    },
     logout: () => {
       removeToken();
     },
   },
 
   tables: {
-    getAll: () => fetchJson<import('../types').Table[]>(`${API_BASE}/api/tables/`),
-    getById: (id: string) => fetchJson<import('../types').Table>(`${API_BASE}/api/tables/${id}`),
-    getByToken: (token: string, restaurantSlug?: string) => {
-      const base = restaurantSlug ? `${API_BASE}/api/tables/public/${restaurantSlug}` : `${API_BASE}/api/tables`;
-      return fetchJson<import('../types').Table>(`${base}/by-token/${token}`);
+    getAll: async () => {
+      const response = await apiClient.get<import('../types').Table[]>('/api/tables/');
+      return response.data;
     },
-    create: (data: import('../types').TableCreate) => fetchJson<import('../types').TableWithQR>(`${API_BASE}/api/tables/`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-    getWithQR: (id: string) => fetchJson<import('../types').TableWithQR>(`${API_BASE}/api/tables/${id}/qr`),
-    delete: (id: string) => fetchWithAuthNoJson(`${API_BASE}/api/tables/${id}`, { method: 'DELETE' }),
-    getOrCreateSession: (token: string, restaurantSlug?: string) => {
-      const base = restaurantSlug ? `${API_BASE}/api/tables/public/${restaurantSlug}` : `${API_BASE}/api/tables`;
-      return fetchJson<import('../types').SessionResponse>(`${base}/${token}/session`, {
-        method: 'POST',
-      });
+    getById: async (id: string) => {
+      const response = await apiClient.get<import('../types').Table>(`/api/tables/${id}`);
+      return response.data;
+    },
+    getByToken: async (token: string, restaurantSlug?: string) => {
+      const base = restaurantSlug ? `/api/tables/public/${restaurantSlug}` : '/api/tables';
+      const response = await apiClient.get<import('../types').Table>(`${base}/by-token/${token}`);
+      return response.data;
+    },
+    create: async (data: import('../types').TableCreate) => {
+      const response = await apiClient.post<import('../types').TableWithQR>('/api/tables/', data);
+      return response.data;
+    },
+    getWithQR: async (id: string) => {
+      const response = await apiClient.get<import('../types').TableWithQR>(`/api/tables/${id}/qr`);
+      return response.data;
+    },
+    delete: (id: string) => apiClient.delete(`/api/tables/${id}`),
+    getOrCreateSession: async (token: string, restaurantSlug?: string) => {
+      const base = restaurantSlug ? `/api/tables/public/${restaurantSlug}` : '/api/tables';
+      const response = await apiClient.post<import('../types').SessionResponse>(`${base}/${token}/session`);
+      return response.data;
     },
   },
 
   menu: {
-    getCategories: (restaurantSlug?: string) => {
-      const base = restaurantSlug ? `${API_BASE}/api/menu/public/${restaurantSlug}` : `${API_BASE}/api/menu`;
-      return fetchJson<import('../types').MenuCategory[]>(`${base}/categories`);
+    getCategories: async (restaurantSlug?: string) => {
+      const base = restaurantSlug ? `/api/menu/public/${restaurantSlug}` : '/api/menu';
+      const response = await apiClient.get<import('../types').MenuCategory[]>(`${base}/categories`);
+      return response.data;
     },
-    createCategory: (data: import('../types').MenuCategoryCreate) => fetchJson<import('../types').MenuCategory>(`${API_BASE}/api/menu/categories`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-    updateCategory: (id: string, data: import('../types').MenuCategoryUpdate) => fetchJson<import('../types').MenuCategory>(`${API_BASE}/api/menu/categories/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
-    deleteCategory: (id: string) => fetchWithAuthNoJson(`${API_BASE}/api/menu/categories/${id}`, { method: 'DELETE' }),
-    
+    createCategory: async (data: import('../types').MenuCategoryCreate) => {
+      const response = await apiClient.post<import('../types').MenuCategory>(`/api/menu/categories`, data);
+      return response.data;
+    },
+    updateCategory: async (id: string, data: import('../types').MenuCategoryUpdate) => {
+      const response = await apiClient.put<import('../types').MenuCategory>(`/api/menu/categories/${id}`, data);
+      return response.data;
+    },
+    deleteCategory: (id: string) => apiClient.delete(`/api/menu/categories/${id}`),
+
     getItems: async (availableOnly = false, restaurantSlug?: string): Promise<MenuItemWithCategory[]> => {
-      const base = restaurantSlug ? `${API_BASE}/api/menu/public/${restaurantSlug}` : `${API_BASE}/api/menu`;
-      const data = await fetchJson<any[]>(`${base}/items?available_only=${availableOnly}`);
-      return data.map(transformMenuItemWithCategory);
+      const base = restaurantSlug ? `/api/menu/public/${restaurantSlug}` : '/api/menu';
+      const response = await apiClient.get<any[]>(`${base}/items`, {
+        params: { available_only: availableOnly }
+      });
+      return response.data.map(transformMenuItemWithCategory);
     },
     getItemsByCategory: async (categoryId: string): Promise<MenuItem[]> => {
-      const data = await fetchJson<any[]>(`${API_BASE}/api/menu/items/category/${categoryId}`);
-      return data.map(transformMenuItem);
+      const response = await apiClient.get<any[]>(`/api/menu/items/category/${categoryId}`);
+      return response.data.map(transformMenuItem);
     },
     createItem: async (data: import('../types').MenuItemCreate): Promise<MenuItem> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/menu/items`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return transformMenuItem(result);
+      const response = await apiClient.post<any>(`/api/menu/items`, data);
+      return transformMenuItem(response.data);
     },
     updateItem: async (id: string, data: import('../types').MenuItemUpdate): Promise<MenuItem> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/menu/items/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-      return transformMenuItem(result);
+      const response = await apiClient.put<any>(`/api/menu/items/${id}`, data);
+      return transformMenuItem(response.data);
     },
-    deleteItem: (id: string) => fetchWithAuthNoJson(`${API_BASE}/api/menu/items/${id}`, { method: 'DELETE' }),
+    deleteItem: (id: string) => apiClient.delete(`/api/menu/items/${id}`),
     toggleAvailability: async (id: string, isAvailable: boolean): Promise<MenuItem> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/menu/items/${id}/availability?is_available=${isAvailable}`, {
-        method: 'PATCH',
+      const response = await apiClient.patch<any>(`/api/menu/items/${id}/availability`, null, {
+        params: { is_available: isAvailable }
       });
-      return transformMenuItem(result);
+      return transformMenuItem(response.data);
     },
   },
 
   orders: {
     create: async (data: import('../types').OrderCreate, restaurantSlug?: string): Promise<Order> => {
-      const base = restaurantSlug ? `${API_BASE}/api/orders/${restaurantSlug}` : `${API_BASE}/api/orders`;
-      const result = await fetchJson<any>(`${base}/`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return transformOrder(result);
+      const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
+      const response = await apiClient.post<any>(`${base}/`, data);
+      return transformOrder(response.data);
     },
     getBySession: async (sessionId: string, restaurantSlug?: string): Promise<Order[]> => {
-      const base = restaurantSlug ? `${API_BASE}/api/orders/${restaurantSlug}` : `${API_BASE}/api/orders`;
-      const data = await fetchJson<any[]>(`${base}/session/${sessionId}`);
-      return data.map(transformOrder);
+      const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
+      const response = await apiClient.get<any[]>(`${base}/session/${sessionId}`);
+      return response.data.map(transformOrder);
     },
     getActive: async (): Promise<Order[]> => {
-      const data = await fetchJson<any[]>(`${API_BASE}/api/orders/active`);
-      return data.map(transformOrder);
+      const response = await apiClient.get<any[]>('/api/orders/active');
+      return response.data.map(transformOrder);
     },
     getById: async (id: string, restaurantSlug?: string): Promise<Order> => {
-      const base = restaurantSlug ? `${API_BASE}/api/orders/${restaurantSlug}` : `${API_BASE}/api/orders`;
-      const result = await fetchJson<any>(`${base}/${id}`);
-      return transformOrder(result);
+      const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
+      const response = await apiClient.get<any>(`${base}/${id}`);
+      return transformOrder(response.data);
     },
     updateStatus: async (id: string, data: import('../types').OrderUpdate): Promise<Order> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/orders/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-      return transformOrder(result);
+      const response = await apiClient.patch<any>(`/api/orders/${id}/status`, data);
+      return transformOrder(response.data);
     },
     getSessionWithOrders: async (sessionId: string, restaurantSlug?: string): Promise<import('../types').OrderSessionWithOrders> => {
-      const base = restaurantSlug ? `${API_BASE}/api/orders/${restaurantSlug}` : `${API_BASE}/api/orders`;
-      const result = await fetchJson<any>(`${base}/sessions/${sessionId}`);
+      const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
+      const response = await apiClient.get<any>(`${base}/sessions/${sessionId}`);
       return {
-        ...result,
-        orders: (result.orders || []).map(transformOrder),
+        ...response.data,
+        orders: (response.data.orders || []).map(transformOrder),
       };
     },
   },
 
   bills: {
     create: async (data: import('../types').BillCreate): Promise<Bill> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/bills/`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return transformBill(result);
+      const response = await apiClient.post<any>(`/api/bills/`, data);
+      return transformBill(response.data);
     },
     getBySession: async (sessionId: string, restaurantSlug?: string): Promise<BillWithOrders> => {
       const url = restaurantSlug
-        ? `${API_BASE}/api/bills/${restaurantSlug}/session/${sessionId}`
-        : `${API_BASE}/api/bills/by-session/${sessionId}`;
-      const result = await fetchJson<any>(url);
-      return transformBillWithOrders(result);
+        ? `/api/bills/${restaurantSlug}/session/${sessionId}`
+        : `/api/bills/by-session/${sessionId}`;
+      const response = await apiClient.get<any>(url);
+      return transformBillWithOrders(response.data);
     },
     getById: async (id: string, restaurantSlug?: string): Promise<Bill> => {
-      const base = restaurantSlug ? `${API_BASE}/api/bills/${restaurantSlug}` : `${API_BASE}/api/bills`;
-      const result = await fetchJson<any>(`${base}/${id}`);
-      return transformBill(result);
+      const base = restaurantSlug ? `/api/bills/${restaurantSlug}` : '/api/bills';
+      const response = await apiClient.get<any>(`${base}/${id}`);
+      return transformBill(response.data);
     },
     update: async (id: string, data: import('../types').BillUpdate): Promise<Bill> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/bills/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
-      return transformBill(result);
+      const response = await apiClient.patch<any>(`/api/bills/${id}`, data);
+      return transformBill(response.data);
     },
     pay: async (id: string, paymentMethod: import('../types').PaymentMethod): Promise<Bill> => {
-      const result = await fetchJson<any>(`${API_BASE}/api/bills/${id}/pay?payment_method=${paymentMethod}`, {
-        method: 'POST',
+      const response = await apiClient.post<any>(`/api/bills/${id}/pay`, null, {
+        params: { payment_method: paymentMethod }
       });
-      return transformBill(result);
+      return transformBill(response.data);
     },
     getAll: async (): Promise<Bill[]> => {
-      const data = await fetchJson<any[]>(`${API_BASE}/api/bills/`);
-      return data.map(transformBill);
+      const response = await apiClient.get<any[]>('/api/bills/');
+      return response.data.map(transformBill);
     },
   },
 
   superadmin: {
     getRestaurants: async () => {
-      const result = await fetchJson<import('../types').RestaurantListResponse>(`${API_BASE}/api/superadmin/restaurants`);
-      return result.restaurants;
+      const response = await apiClient.get<import('../types').RestaurantListResponse>('/api/superadmin/restaurants');
+      return response.data.restaurants;
     },
     createRestaurant: async (data: import('../types').CreateRestaurantAdminRequest) => {
-      const result = await fetchJson<import('../types').RestaurantWithAdmin>(`${API_BASE}/api/superadmin/restaurants`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return result;
+      const response = await apiClient.post<import('../types').RestaurantWithAdmin>('/api/superadmin/restaurants', data);
+      return response.data;
     },
     updateRestaurant: async (id: string, data: import('../types').UpdateRestaurantAdminRequest) => {
-      const result = await fetchJson<import('../types').RestaurantWithAdmin>(`${API_BASE}/api/superadmin/restaurants/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
-      return result;
+      const response = await apiClient.put<import('../types').RestaurantWithAdmin>(`/api/superadmin/restaurants/${id}`, data);
+      return response.data;
     },
     updateRestaurantStatus: async (id: string, status: string) => {
-      const result = await fetchJson<import('../types').RestaurantWithAdmin>(`${API_BASE}/api/superadmin/restaurants/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      });
-      return result;
+      const response = await apiClient.patch<import('../types').RestaurantWithAdmin>(`/api/superadmin/restaurants/${id}/status`, { status });
+      return response.data;
     },
     deleteRestaurant: async (id: string) => {
-      const token = getToken();
-      const response = await fetch(`${API_BASE}/api/superadmin/restaurants/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-        throw new Error(error.detail || 'An error occurred');
-      }
+      await apiClient.delete(`/api/superadmin/restaurants/${id}`);
     },
   },
 };

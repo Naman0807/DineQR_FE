@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../stores/AuthContext';
+import styles from './LoginPage.module.css';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ export function LoginPage() {
 
   const isSuperadmin = location.pathname.includes('superadmin');
 
-  const from = (location.state as any)?.from?.pathname || (isSuperadmin ? '/superadmin/dashboard' : (restaurantSlug ? `/${restaurantSlug}/admin` : '/admin'));
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || (isSuperadmin ? '/superadmin/dashboard' : (restaurantSlug ? `/${restaurantSlug}/admin` : '/admin'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +27,11 @@ export function LoginPage() {
     try {
       await login(username, password);
       navigate(from, { replace: true });
-    } catch (err: any) {
-      const message = err.message || 'Invalid credentials';
-      if (err.response?.status === 403) {
+    } catch (err: unknown) {
+      const errorResponse = err as { message?: string; response?: { status: number } };
+      const message = errorResponse.message || 'Invalid credentials';
+
+      if (errorResponse.response?.status === 403) {
         if (message.toLowerCase().includes('pending')) {
           setError('Your restaurant account is pending approval. Please contact the superadmin.');
         } else if (message.toLowerCase().includes('deactivated')) {
@@ -38,6 +41,7 @@ export function LoginPage() {
         }
       } else {
         setError(message);
+        console.log(err);
       }
     } finally {
       setIsLoading(false);
@@ -45,28 +49,28 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LogIn className="w-8 h-8 text-orange-500" />
+    <div className={styles.container}>
+      <div className={styles.cardWrapper}>
+        <div className={styles.card}>
+          <div className={styles.header}>
+            <div className={styles.iconWrapper}>
+              <LogIn className={styles.icon} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className={styles.title}>
               {isSuperadmin ? 'Superadmin Login' : 'Admin Login'}
             </h1>
-            <p className="text-gray-500 mt-1">Sign in to access admin dashboard</p>
+            <p className={styles.subtitle}>Sign in to access your dashboard</p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+            <div className={styles.error}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="username" className={styles.label}>
                 Username
               </label>
               <input
@@ -74,33 +78,33 @@ export function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className={styles.input}
                 placeholder="Enter your username"
                 required
                 autoFocus
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <div className={styles.fieldGroup}>
+              <label htmlFor="password" className={styles.label}>
                 Password
               </label>
-              <div className="relative">
+              <div className={styles.passwordWrapper}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className={`${styles.input} ${styles.passwordInput}`}
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                  className={styles.toggleButton}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -108,28 +112,22 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 min-h-[48px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+              className={styles.submitButton}
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
           {!isSuperadmin && (
-            <div className="mt-6 text-center">
-              <p className="text-gray-500 text-sm">
+            <div className={styles.footer}>
+              <p className={styles.footerText}>
                 Don't have an account?{' '}
-                <Link to={restaurantSlug ? `/${restaurantSlug}/admin/register` : '/admin/register'} className="text-orange-500 hover:text-orange-600 font-medium">
+                <Link to={restaurantSlug ? `/${restaurantSlug}/admin/register` : '/admin/register'} className={styles.link}>
                   Create one
                 </Link>
               </p>
             </div>
           )}
-        </div>
-
-        <div className="mt-4 text-center">
-          <Link to={restaurantSlug ? `/${restaurantSlug}/menu` : '/menu'} className="text-gray-500 hover:text-gray-700 text-sm">
-            ← Back to Menu
-          </Link>
         </div>
       </div>
     </div>

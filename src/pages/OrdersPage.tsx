@@ -1,15 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Clock, ChefHat, CheckCircle } from 'lucide-react';
+import {
+  Layout,
+  Typography,
+  Button,
+  Card,
+  Space,
+  Flex,
+  Tag,
+  List,
+  Spin,
+  theme as antTheme
+} from 'antd';
+import {
+  ArrowLeftOutlined,
+  ClockCircleOutlined,
+  SyncOutlined,
+  CheckCircleOutlined
+} from '@ant-design/icons';
 import { useSession } from '../stores/SessionContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { api } from '../services/api';
 import type { Order } from '../types';
 
-const statusConfig = {
-  received: { label: 'Received', icon: Clock, color: 'text-blue-500', bg: 'bg-blue-100' },
-  preparing: { label: 'Preparing', icon: ChefHat, color: 'text-orange-500', bg: 'bg-orange-100' },
-  served: { label: 'Served', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-100' },
+const { Header, Content } = Layout;
+const { Title, Text } = Typography;
+
+const statusConfig: Record<string, { label: string, icon: React.ReactNode, color: string }> = {
+  received: { label: 'Received', icon: <ClockCircleOutlined />, color: 'blue' },
+  preparing: { label: 'Preparing', icon: <SyncOutlined spin />, color: 'orange' },
+  served: { label: 'Served', icon: <CheckCircleOutlined />, color: 'green' },
 };
 
 export function OrdersPage() {
@@ -17,6 +37,7 @@ export function OrdersPage() {
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const { sessionId, tableNumber, tableId } = useSession();
   const { isConnected, lastMessage } = useWebSocket('table', tableId || '');
+  const { token: themeToken } = antTheme.useToken();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +46,7 @@ export function OrdersPage() {
       if (!sessionId) return;
       try {
         const data = await api.orders.getBySession(sessionId, restaurantSlug);
-        setOrders(data.sort((a, b) => 
+        setOrders(data.sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         ));
       } catch (error) {
@@ -38,7 +59,7 @@ export function OrdersPage() {
     fetchOrders();
     const interval = setInterval(fetchOrders, 30000);
     return () => clearInterval(interval);
-  }, [sessionId]);
+  }, [sessionId, restaurantSlug]);
 
   useEffect(() => {
     if (lastMessage?.event === 'order_updated') {
@@ -48,112 +69,147 @@ export function OrdersPage() {
   }, [lastMessage]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
+      <Flex align="center" justify="center" style={{ minHeight: '100vh', background: themeToken.colorBgLayout }}>
+        <Spin size="large" />
+      </Flex>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 px-4 md:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        <header className="bg-white shadow-sm sticky top-0 z-10 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 pt-2 safe-top">
-          <div className="py-3 md:py-4 flex items-center gap-3 md:gap-4">
-            <button
-              onClick={() => navigate(`/${restaurantSlug}/menu`)}
-              className="p-2.5 min-h-[44px] min-w-[44px] -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div className="flex-1">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Your Orders</h1>
-              {tableNumber && (
-                <p className="text-sm text-gray-500">Table {tableNumber}</p>
-              )}
-            </div>
-            <div className={`flex items-center gap-1.5 text-xs md:text-sm px-2 py-1 rounded-full ${isConnected ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-100'}`}>
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-              Live
-            </div>
-          </div>
-        </header>
+    <Layout style={{ minHeight: '100vh', background: themeToken.colorBgLayout }}>
+      <Header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        padding: '0 16px',
+        background: themeToken.colorBgContainer,
+        boxShadow: themeToken.boxShadowTertiary,
+        height: 'auto',
+        lineHeight: 'initial',
+        paddingTop: 12,
+        paddingBottom: 8
+      }}>
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined style={{ fontSize: 20 }} />}
+          onClick={() => navigate(`/${restaurantSlug}/menu`)}
+          style={{ marginLeft: -8 }}
+        />
+        <Space direction="vertical" size={0} style={{ flex: 1 }}>
+          <Title level={4} style={{ margin: 0 }}>Your Orders</Title>
+          {tableNumber && (
+            <Text type="secondary" style={{ fontSize: 12 }}>Table {tableNumber}</Text>
+          )}
+        </Space>
+        <Tag color={isConnected ? 'success' : 'default'} style={{ borderRadius: 12, margin: 0 }}>
+          <Space size={4}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: isConnected ? '#52c41a' : '#bfbfbf' }} />
+            Live
+          </Space>
+        </Tag>
+      </Header>
 
-        <main className="py-4 md:py-5 lg:py-6">
+      <Content style={{ padding: '16px', paddingBottom: 100 }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
           {orders.length === 0 ? (
-            <div className="text-center py-12 md:py-16">
-              <p className="text-gray-500 mb-4">No orders yet</p>
-              <button
+            <Flex vertical align="center" justify="center" style={{ padding: '60px 0' }}>
+              <Text type="secondary" style={{ marginBottom: 24, fontSize: 16 }}>No orders yet</Text>
+              <Button
+                type="primary"
+                size="large"
+                shape="round"
                 onClick={() => navigate(`/${restaurantSlug}/menu`)}
-                className="px-6 py-3 min-h-[44px] bg-orange-500 text-white rounded-full font-medium hover:bg-orange-600 transition-colors"
               >
                 Browse Menu
-              </button>
-            </div>
+              </Button>
+            </Flex>
           ) : (
-            <div className="space-y-4 md:space-y-5">
+            <Space direction="vertical" size={16} style={{ width: '100%' }}>
               {orders.map(order => {
-                const config = statusConfig[order.status];
-                const StatusIcon = config.icon;
-                
+                const config = statusConfig[order.status] || { label: order.status, color: 'default', icon: null };
+
                 return (
-                  <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div className="p-4 md:p-5 border-b border-gray-100">
-                      <div className="flex justify-between items-center">
+                  <Card
+                    key={order.id}
+                    bordered={false}
+                    styles={{ body: { padding: 0 } }}
+                  >
+                    <div style={{ padding: 16, borderBottom: `1px solid ${themeToken.colorBorderSecondary}` }}>
+                      <Flex justify="space-between" align="center">
                         <div>
-                          <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
-                          <p className="font-bold text-lg md:text-xl mt-0.5 md:mt-1">₹{order.total_amount.toFixed(2)}</p>
+                          <Text type="secondary" style={{ fontSize: 13 }}>{formatDate(order.created_at)}</Text>
+                          <Title level={4} style={{ margin: '4px 0 0 0' }}>₹{order.total_amount.toFixed(2)}</Title>
                         </div>
-                        <div className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:py-2 rounded-full ${config.bg}`}>
-                          <StatusIcon className={`w-4 h-4 md:w-5 md:h-5 ${config.color}`} />
-                          <span className={`text-sm md:text-base font-medium ${config.color}`}>
-                            {config.label}
-                          </span>
-                        </div>
-                      </div>
+                        <Tag
+                          color={config.color}
+                          icon={config.icon}
+                          style={{ padding: '4px 12px', borderRadius: 16, fontSize: 14, fontWeight: 500 }}
+                        >
+                          {config.label}
+                        </Tag>
+                      </Flex>
                     </div>
-                    
-                    <div className="p-4 md:p-5">
-                      <h3 className="text-sm font-medium text-gray-500 mb-2 md:mb-3">Items</h3>
-                      <div className="space-y-2 md:space-y-3">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between text-sm md:text-base">
-                            <div>
-                              <span className="font-medium">{item.quantity}x</span>
-                              <span className="ml-2">{item.menu_item_name}</span>
-                            </div>
-                            <span className="text-gray-500">
-                              ₹{(item.unit_price * item.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+
+                    <div style={{ padding: 16 }}>
+                      <Text strong style={{ display: 'block', marginBottom: 12, color: themeToken.colorTextSecondary, fontSize: 13, textTransform: 'uppercase' }}>
+                        Items
+                      </Text>
+                      <List
+                        dataSource={order.items}
+                        renderItem={item => (
+                          <List.Item style={{ padding: '8px 0', border: 'none' }}>
+                            <Flex justify="space-between" style={{ width: '100%' }}>
+                              <Text>
+                                <Text strong>{item.quantity}x</Text>
+                                <span style={{ marginLeft: 12 }}>{item.menu_item_name}</span>
+                              </Text>
+                              <Text type="secondary">₹{(item.unit_price * item.quantity).toFixed(2)}</Text>
+                            </Flex>
+                          </List.Item>
+                        )}
+                      />
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
-            </div>
+            </Space>
           )}
-        </main>
+        </div>
+      </Content>
 
-        <div className="fixed bottom-0 left-0 right-0 px-4 md:px-6 pb-5 md:pb-6 safe-bottom">
-          <div className="max-w-2xl mx-auto">
-            <button
-              onClick={() => navigate(`/${restaurantSlug}/menu`)}
-              className="w-full py-3.5 md:py-4 min-h-[52px] bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
-            >
-              Order More
-            </button>
-          </div>
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 16,
+        background: `linear-gradient(transparent, ${themeToken.colorBgLayout} 20%)`,
+        pointerEvents: 'none'
+      }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', pointerEvents: 'auto' }}>
+          <Button
+            type="primary"
+            size="large"
+            block
+            onClick={() => navigate(`/${restaurantSlug}/menu`)}
+            style={{ height: 50, borderRadius: 12, fontWeight: 600, boxShadow: themeToken.boxShadow }}
+          >
+            Order More
+          </Button>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../stores/AuthContext';
+import styles from './RegisterPage.module.css';
 
 export function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -43,51 +44,53 @@ export function RegisterPage() {
       } else {
         navigate(restaurantSlug ? `/${restaurantSlug}/admin` : '/admin', { replace: true });
       }
-    } catch (err: any) {
-      setError(err.message || 'Registration failed');
+    } catch (err: unknown) {
+      const errorResponse = err as { message?: string };
+      setError(errorResponse.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <UserPlus className="w-8 h-8 text-orange-500" />
+    <div className={styles.container}>
+      <div className={styles.cardWrapper}>
+        <div className={styles.card}>
+          <div className={styles.header}>
+            <div className={`${styles.iconWrapper} ${pendingApproval ? styles.iconWrapperSuccess : styles.iconWrapperNormal}`}>
+              <UserPlus className={`${styles.icon} ${pendingApproval ? styles.iconSuccess : styles.iconNormal}`} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-            <p className="text-gray-500 mt-1">Register for admin access</p>
+            <h1 className={styles.title}>
+              {pendingApproval ? 'Registration Submitted!' : 'Create Account'}
+            </h1>
+            <p className={styles.subtitle}>
+              {pendingApproval ? 'Your application is being processed' : 'Register for admin access'}
+            </p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+            <div className={styles.error}>
               {error}
             </div>
           )}
 
           {pendingApproval ? (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <UserPlus className="w-8 h-8 text-green-500" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Registration Submitted!</h2>
-              <p className="text-gray-500 mb-6">
-                Your restaurant "{restaurantName}" is pending approval. You will be notified once your account is activated.
+            <div className={styles.successContent}>
+              <p className={styles.successText}>
+                Your restaurant <span className={styles.bold}>"{restaurantName}"</span> is pending approval. You will receive an email once your account is activated.
               </p>
               <Link
                 to={registeredRestaurantSlug ? `/${registeredRestaurantSlug}/admin/login` : (restaurantSlug ? `/${restaurantSlug}/admin/login` : '/admin/login')}
-                className="inline-block py-3 px-6 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                className={styles.submitButton}
+                style={{ display: 'inline-block', textDecoration: 'none', textAlign: 'center' }}
               >
                 Go to Login
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="username" className={styles.label}>
                   Username
                 </label>
                 <input
@@ -95,15 +98,15 @@ export function RegisterPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className={styles.input}
                   placeholder="Choose a username"
                   required
                   autoFocus
                 />
               </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <div className={styles.fieldGroup}>
+                <label htmlFor="email" className={styles.label}>
                   Email
                 </label>
                 <input
@@ -111,14 +114,14 @@ export function RegisterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className={styles.input}
                   placeholder="Enter your email"
                   required
                 />
               </div>
 
-              <div>
-                <label htmlFor="restaurantName" className="block text-sm font-medium text-gray-700 mb-1">
+              <div className={styles.fieldGroup}>
+                <label htmlFor="restaurantName" className={styles.label}>
                   Restaurant Name
                 </label>
                 <input
@@ -126,56 +129,56 @@ export function RegisterPage() {
                   type="text"
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  className="w-full px-4 py-3 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className={styles.input}
                   placeholder="Enter your restaurant name"
                   required
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <div className={styles.fieldGroup}>
+                <label htmlFor="password" className={styles.label}>
                   Password
                 </label>
-                <div className="relative">
+                <div className={styles.passwordWrapper}>
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`${styles.input} ${styles.passwordInput}`}
                     placeholder="Create a password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                    className={styles.toggleButton}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <div className={styles.fieldGroup}>
+                <label htmlFor="confirmPassword" className={styles.label}>
                   Confirm Password
                 </label>
-                <div className="relative">
+                <div className={styles.passwordWrapper}>
                   <input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 min-h-[48px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`${styles.input} ${styles.passwordInput}`}
                     placeholder="Confirm your password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                    className={styles.toggleButton}
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
@@ -183,27 +186,21 @@ export function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 min-h-[48px] bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+                className={styles.submitButton}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
           )}
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
+          <div className={styles.footer}>
+            <p className={styles.footerText}>
               Already have an account?{' '}
-              <Link to={registeredRestaurantSlug ? `/${registeredRestaurantSlug}/admin/login` : (restaurantSlug ? `/${restaurantSlug}/admin/login` : '/admin/login')} className="text-orange-500 hover:text-orange-600 font-medium">
+              <Link to={registeredRestaurantSlug ? `/${registeredRestaurantSlug}/admin/login` : (restaurantSlug ? `/${restaurantSlug}/admin/login` : '/admin/login')} className={styles.link}>
                 Sign in
               </Link>
             </p>
           </div>
-        </div>
-
-        <div className="mt-4 text-center">
-          <Link to={restaurantSlug ? `/${restaurantSlug}/menu` : '/menu'} className="text-gray-500 hover:text-gray-700 text-sm">
-            {'<-'} Back to Menu
-          </Link>
         </div>
       </div>
     </div>
