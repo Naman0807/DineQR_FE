@@ -11,6 +11,7 @@ export interface Table {
   qr_token: string;
   status: TableStatus;
   created_at: string;
+  restaurant_slug?: string;
 }
 
 export interface TableWithQR extends Table {
@@ -168,13 +169,24 @@ export interface CartItem {
   special_instructions?: string;
 }
 
-export type UserRole = 'admin' | 'staff';
+export type RestaurantStatus = 'pending' | 'active' | 'deactivated';
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  slug: string;
+  status: RestaurantStatus;
+  created_at: string;
+}
+
+export type UserRole = 'admin' | 'staff' | 'superadmin';
 
 export interface User {
   id: string;
   username: string;
   email: string;
   role: UserRole;
+  restaurant_id?: string;
   created_at: string;
 }
 
@@ -188,9 +200,40 @@ export interface RegisterRequest {
   email: string;
   password: string;
   role?: UserRole;
+  restaurant_name?: string;
 }
 
 export interface AuthResponse {
-  access_token: string;
-  token_type: string;
+  access_token?: string;
+  token_type?: string;
+  message?: string;
+  restaurant_slug?: string;
+}
+
+export interface RestaurantWithAdmin {
+  id: string;
+  name: string;
+  slug: string;
+  status: RestaurantStatus;
+  created_at: string;
+  admin_username: string;
+  admin_email: string;
+}
+
+export interface RestaurantListResponse {
+  restaurants: RestaurantWithAdmin[];
+}
+
+export interface CreateRestaurantAdminRequest {
+  restaurant_name: string;
+  admin_username: string;
+  admin_email: string;
+  admin_password: string;
+}
+
+export interface UpdateRestaurantAdminRequest {
+  restaurant_name?: string;
+  admin_username?: string;
+  admin_email?: string;
+  admin_password?: string;
 }

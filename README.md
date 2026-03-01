@@ -64,19 +64,21 @@ frontend/
 ## Routes
 
 ### Customer Routes
-| Route | Description |
-|-------|-------------|
+
+| Route                    | Description                     |
+| ------------------------ | ------------------------------- |
 | `/menu?table={qr_token}` | Menu page (QR code entry point) |
-| `/cart` | Shopping cart |
-| `/orders` | Order status tracking |
+| `/cart`                  | Shopping cart                   |
+| `/orders`                | Order status tracking           |
 
 ### Admin Routes
-| Route | Description |
-|-------|-------------|
-| `/admin` | Redirects to orders dashboard |
-| `/admin/tables` | Table & QR code management |
-| `/admin/menu` | Menu items & categories |
-| `/admin/billing` | Bill generation & payments |
+
+| Route            | Description                   |
+| ---------------- | ----------------------------- |
+| `/admin`         | Redirects to orders dashboard |
+| `/admin/tables`  | Table & QR code management    |
+| `/admin/menu`    | Menu items & categories       |
+| `/admin/billing` | Bill generation & payments    |
 
 ## Setup
 
@@ -88,12 +90,14 @@ frontend/
 ### Installation
 
 1. Install dependencies:
+
    ```bash
    cd frontend
    bun install
    ```
 
 2. Configure environment:
+
    ```bash
    # .env file
    VITE_API_URL=http://localhost:8000

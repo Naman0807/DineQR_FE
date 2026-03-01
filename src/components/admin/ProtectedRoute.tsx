@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../../stores/AuthContext';
 
 interface ProtectedRouteProps {
@@ -6,8 +6,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
 
   if (isLoading) {
     return (
@@ -18,7 +19,23 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const pathRoot = pathParts[0];
+    const loginPath = pathRoot === 'admin' ? '/admin/login' : (pathRoot ? `/${pathRoot}/admin/login` : '/superadmin/login');
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
+  }
+
+  if (user?.role === 'superadmin') {
+    return <Navigate to="/superadmin/dashboard" replace />;
+  }
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/superadmin/login" replace />;
+  }
+
+  const isSluglessAdminRoute = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  if (!isSluglessAdminRoute && (!restaurantSlug || restaurantSlug.startsWith(':'))) {
+    return <Navigate to="/superadmin/dashboard" replace />;
   }
 
   return <>{children}</>;
