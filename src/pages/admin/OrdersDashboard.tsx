@@ -118,7 +118,7 @@ export function OrdersDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className={styles.loadingContainer}>
         <Spin size="large" tip="Loading orders..." />
       </div>
     );
@@ -139,7 +139,7 @@ export function OrdersDashboard() {
         </Space>
       ),
       children: (
-        <div className="space-y-4 pt-4">
+        <div className={styles.ordersList}>
           {ordersByStatus[status].map(order => (
             <OrderCard
               key={order.id}
@@ -182,7 +182,7 @@ export function OrdersDashboard() {
             shape="circle"
             icon={soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={soundEnabled ? 'text-orange-500' : 'text-gray-400'}
+            className={soundEnabled ? styles.soundBtnActive : styles.soundBtnMuted}
             title={soundEnabled ? 'Disable Sound' : 'Enable Sound'}
           />
           <Button

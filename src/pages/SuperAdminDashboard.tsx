@@ -43,6 +43,7 @@ interface FormState {
   restaurant_name: string;
   admin_username: string;
   admin_email: string;
+  admin_phone: string;
   admin_password?: string;
 }
 
@@ -119,6 +120,7 @@ export function SuperAdminDashboard() {
         restaurant_name: restaurant.name,
         admin_username: restaurant.admin_username,
         admin_email: restaurant.admin_email,
+        admin_phone: restaurant.admin_phone,
         admin_password: '',
       });
     } else {
@@ -164,6 +166,7 @@ export function SuperAdminDashboard() {
         <Space direction="vertical" size={0}>
           <Text>{record.admin_username}</Text>
           <Text type="secondary" style={{ fontSize: 12 }}>{record.admin_email}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>{record.admin_phone}</Text>
         </Space>
       ),
     },
@@ -328,6 +331,16 @@ export function SuperAdminDashboard() {
           </Form.Item>
           <Form.Item name="admin_email" label="Admin Email" rules={[{ required: true, type: 'email' }]}>
             <Input placeholder="Enter admin email" size="large" />
+          </Form.Item>
+          <Form.Item
+            name="admin_phone"
+            label="Admin Phone"
+            rules={[
+              { required: true, message: 'Please enter admin phone' },
+              { pattern: /^\+\d{1,4}\d{7,12}$/, message: 'Please enter a valid phone number with country code (e.g., +919016112497)' }
+            ]}
+          >
+            <Input placeholder="+91 9016112497" size="large" />
           </Form.Item>
           <Form.Item
             name="admin_password"

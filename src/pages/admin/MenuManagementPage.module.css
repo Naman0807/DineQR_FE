@@ -1,5 +1,6 @@
 .container {
     padding: 1rem;
+    min-height: 100vh;
 }
 
 .header {
@@ -20,7 +21,7 @@
 .titleArea h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -31,7 +32,7 @@
 }
 
 .subtitle {
-    color: #6b7280;
+    color: var(--text-muted);
     margin-top: 0.25rem;
     font-size: 0.875rem;
 }
@@ -77,18 +78,18 @@
 }
 
 .btnSecondary {
-    background-color: white;
-    color: #374151;
-    border: 1px solid #e5e7eb;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 
 .btnSecondary:hover {
-    background-color: #f9fafb;
-    border-color: #d1d5db;
+    background-color: var(--bg-hover);
+    border-color: var(--text-muted);
 }
 
 .btnPrimary {
-    background-color: #f97316;
+    background-color: var(--brand-primary);
     color: white;
 }
 
@@ -98,16 +99,16 @@
 }
 
 .card {
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: 1rem;
-    border: 1px solid #f3f4f6;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
     overflow: hidden;
 }
 
 .tabsArea {
     padding: 1rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .tabsList {
@@ -133,16 +134,16 @@
     transition: all 0.2s ease;
     cursor: pointer;
     border: none;
-    background-color: #f3f4f6;
-    color: #4b5563;
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
 }
 
 .tabBtn:hover {
-    background-color: #e5e7eb;
+    background-color: var(--border-color);
 }
 
 .tabBtnActive {
-    background-color: #f97316;
+    background-color: var(--brand-primary);
     color: white;
 }
 
@@ -152,17 +153,22 @@
 }
 
 .tableHeader {
-    grid-template-columns: 2fr 1fr 1fr 1.2fr 100px;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #f9fafb;
-    border-bottom: 1px solid #f3f4f6;
-    color: #6b7280;
+    display: none;
+    grid-template-columns: 2fr 1fr 1fr 1fr 100px;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-muted);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+@media (min-width: 992px) {
+    .tableHeader {
+        display: grid;
+    }
 }
 
 .itemsList {
@@ -173,5 +179,62 @@
 .emptyState {
     text-align: center;
     padding: 3rem 1rem;
-    color: #6b7280;
+    color: var(--text-muted);
+}
+
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16rem;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border-bottom: 2px solid var(--brand-primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.categoryGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.categoryGroup:hover .deleteCatBtn {
+    opacity: 1;
+}
+
+.deleteCatBtn {
+    padding: 0.375rem;
+    color: var(--text-muted);
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.deleteCatBtn:hover {
+    color: var(--status-error-text);
+    background-color: var(--status-error-bg);
+}
+
+@media (max-width: 639px) {
+    .deleteCatBtn {
+        display: none;
+    }
 }

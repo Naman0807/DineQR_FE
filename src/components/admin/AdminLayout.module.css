@@ -26,12 +26,18 @@
     justify-content: space-between;
 }
 
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .logo {
     display: flex;
     align-items: center;
     font-size: 1.5rem;
     font-weight: 800;
-    color: #f97316;
+    color: var(--brand-primary);
     text-decoration: none;
     letter-spacing: -0.025em;
 }
@@ -165,7 +171,7 @@
 }
 
 .navLinkActive {
-    color: #f97316;
+    color: var(--brand-primary);
     background-color: rgba(249, 115, 22, 0.1);
 }
 
@@ -182,7 +188,7 @@
     transform: translateX(-50%) scaleX(0);
     width: 3px;
     height: 3px;
-    background-color: #f97316;
+    background-color: var(--brand-primary);
     border-radius: 50%;
     transition: transform 0.3s ease;
 }

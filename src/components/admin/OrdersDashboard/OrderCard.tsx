@@ -29,12 +29,11 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                     <span className={styles.tableName}>Table {order.table_number}</span>
                     <span className={styles.timeAgo}>{getTimeAgo(order.created_at)}</span>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className={styles.statusWrapper}>
                     <span className={styles.timeLabel}>{formatTime(order.created_at)}</span>
                     <Badge
                         status={order.status === 'received' ? 'processing' : order.status === 'preparing' ? 'warning' : 'success'}
                         text={currentConfig.label}
-                        style={{ fontSize: '12px' }}
                     />
                 </div>
             </div>

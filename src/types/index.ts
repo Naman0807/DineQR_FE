@@ -199,6 +199,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   username: string;
   email: string;
+  phone_number: string;
   password: string;
   role?: UserRole;
   restaurant_name?: string;
@@ -219,6 +220,7 @@ export interface RestaurantWithAdmin {
   created_at: string;
   admin_username: string;
   admin_email: string;
+  admin_phone: string;
 }
 
 export interface RestaurantListResponse {
@@ -229,6 +231,7 @@ export interface CreateRestaurantAdminRequest {
   restaurant_name: string;
   admin_username: string;
   admin_email: string;
+  admin_phone: string;
   admin_password: string;
 }
 
@@ -236,6 +239,7 @@ export interface UpdateRestaurantAdminRequest {
   restaurant_name?: string;
   admin_username?: string;
   admin_email?: string;
+  admin_phone?: string;
   admin_password?: string;
 }
 
@@ -251,5 +255,6 @@ export interface RestaurantSettings {
 export interface UpdateSettingsRequest {
   restaurant_name?: string;
   admin_email?: string;
+  admin_phone?: string;
   restaurant_tax?: number;
 }

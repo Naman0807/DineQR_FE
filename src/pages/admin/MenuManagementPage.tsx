@@ -79,8 +79,8 @@ export function MenuManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
       </div>
     );
   }
@@ -95,9 +95,9 @@ export function MenuManagementPage() {
         <div className={styles.actions}>
           <button
             onClick={() => setShowCategoryModal(true)}
-            className={`${styles.btn} ${styles.btnSecondary}`}
+            className={`${styles.btn} ${styles.btnSecondary} ${styles.desktopOnly}`}
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={16} />
             <span>Add Category</span>
           </button>
           <button
@@ -107,7 +107,7 @@ export function MenuManagementPage() {
             }}
             className={`${styles.btn} ${styles.btnPrimary}`}
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={16} />
             <span>Add Item</span>
           </button>
         </div>
@@ -125,7 +125,7 @@ export function MenuManagementPage() {
             {categories.map(category => {
               const count = menuItems.filter(i => i.category_id === category.id).length;
               return (
-                <div key={category.id} className="flex items-center gap-1 group">
+                <div key={category.id} className={styles.categoryGroup}>
                   <button
                     onClick={() => setSelectedCategory(category.id)}
                     className={`${styles.tabBtn} ${selectedCategory === category.id ? styles.tabBtnActive : ''}`}
@@ -134,10 +134,10 @@ export function MenuManagementPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(category.id)}
-                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors sm:opacity-0 group-hover:opacity-100 hidden sm:block"
+                    className={styles.deleteCatBtn}
                     title="Delete Category"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X size={14} />
                   </button>
                 </div>
               );
@@ -146,7 +146,7 @@ export function MenuManagementPage() {
         </div>
 
         <div className={styles.responsiveList}>
-          <div className={`${styles.tableHeader} hidden lg:grid`}>
+          <div className={styles.tableHeader}>
             <div>Item</div>
             <div>Category</div>
             <div>Price</div>

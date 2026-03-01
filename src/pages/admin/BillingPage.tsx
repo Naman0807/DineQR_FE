@@ -120,8 +120,8 @@ export function BillingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
       </div>
     );
   }
@@ -130,17 +130,17 @@ export function BillingPage() {
     <div className={styles.pageContainer}>
       <div className={styles.grid}>
         <div className={`${styles.listSection} ${selectedSession ? styles.hiddenMobile : ''}`}>
-          <div className="flex justify-between items-start mb-4">
+          <div className={styles.header}>
             <div>
               <h1 className={styles.title}>Billing</h1>
               <p className={styles.subtitle}>Select a table to generate bill and process payment</p>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+            <div className={styles.taxSettings}>
               <Space direction="vertical" size={2}>
                 <Space size={4}>
-                  <Settings size={14} className="text-gray-400" />
-                  <Text size="small" type="secondary" strong>TAX SETTINGS</Text>
+                  <Settings size={14} color="var(--text-muted)" />
+                  <Text type="secondary" strong>TAX SETTINGS</Text>
                 </Space>
                 <Space>
                   <Text type="secondary">GST (%)</Text>
@@ -190,7 +190,7 @@ export function BillingPage() {
           )}
         </div>
 
-        <div className="hidden md:block">
+        <div className={styles.desktopOnly}>
           {selectedSession ? (
             <BillView
               selectedSession={selectedSession}
@@ -214,7 +214,7 @@ export function BillingPage() {
         </div>
       </div>
 
-      <div className="md:hidden">
+      <div className={styles.mobileOnly}>
         {selectedSession && (
           <BillView
             selectedSession={selectedSession}

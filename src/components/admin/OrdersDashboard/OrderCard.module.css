@@ -53,6 +53,12 @@
     gap: 8px;
 }
 
+.iconGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .item {
     display: flex;
     justify-content: space-between;
@@ -68,7 +74,7 @@
 
 .itemQuantity {
     font-weight: 600;
-    color: #f97316;
+    color: var(--brand-primary);
 }
 
 .itemName {
@@ -99,7 +105,13 @@
 .totalAmount {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #f97316;
+    color: var(--brand-primary);
+}
+
+.statusWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .actionButton {

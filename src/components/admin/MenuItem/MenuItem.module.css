@@ -1,12 +1,12 @@
 .item {
     padding: 1rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--border-subtle);
     transition: background-color 0.2s ease;
-    background-color: white;
+    background-color: var(--card-bg);
 }
 
 .item:hover {
-    background-color: #f9fafb;
+    background-color: var(--bg-hover);
 }
 
 /* Base Mobile Styles */
@@ -28,21 +28,21 @@
 }
 
 .name {
-    font-weight: 500;
-    color: #111827;
+    font-weight: 600;
+    color: var(--text-primary);
     font-size: 0.875rem;
     margin: 0;
 }
 
 .categoryLabel {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .price {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--text-primary);
 }
 
 .mobileFooter {
@@ -63,7 +63,7 @@
 }
 
 .placeholder {
-    background-color: #f3f4f6;
+    background-color: var(--bg-hover);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,13 +83,13 @@
 }
 
 .badgeAvailable {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
 }
 
 .badgeUnavailable {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: var(--status-error-bg);
+    color: var(--status-error-text);
 }
 
 .actionBtns {
@@ -99,7 +99,7 @@
 
 .iconBtn {
     padding: 0.5rem;
-    color: #6b7280;
+    color: var(--text-muted);
     border-radius: 0.5rem;
     transition: all 0.2s ease;
     border: none;
@@ -108,24 +108,24 @@
 }
 
 .iconBtn:hover {
-    color: #f97316;
-    background-color: #fff7ed;
+    color: var(--brand-primary);
+    background-color: var(--bg-hover);
 }
 
 .iconBtnDanger:hover {
-    color: #ef4444;
-    background-color: #fef2f2;
+    color: var(--status-error-text);
+    background-color: var(--status-error-bg);
 }
 
 .expandedContent {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--border-subtle);
 }
 
 .description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--text-muted);
     line-height: 1.5;
 }
 
@@ -156,7 +156,7 @@
 
     .categoryCell {
         font-size: 0.875rem;
-        color: #4b5563;
+        color: var(--text-secondary);
     }
 
     .desktopOnly {
@@ -174,7 +174,7 @@
     .desktopPrice {
         font-size: 0.875rem;
         font-weight: 600;
-        color: #111827;
+        color: var(--text-primary);
     }
 
     .actionBtns {
@@ -191,7 +191,7 @@
 
     .description {
         font-size: 0.8125rem;
-        color: #6b7280;
+        color: var(--text-muted);
     }
 }
 

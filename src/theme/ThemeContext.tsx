@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App } from 'antd';
 import { getThemeConfig } from './themeConfig';
 
 interface ThemeContextType {
@@ -34,7 +34,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return (
         <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
             <ConfigProvider theme={getThemeConfig(isDarkMode)}>
-                {children}
+                <App>
+                    {children}
+                </App>
             </ConfigProvider>
         </ThemeContext.Provider>
     );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     Card,
     Form,
@@ -16,6 +16,7 @@ import {
 import { Building2, Mail, Phone, Percent, Edit2, Save, X } from 'lucide-react';
 import { api } from '../../services/api';
 import type { RestaurantSettings } from '../../types';
+import styles from './SettingsPage.module.css';
 
 const { Title, Text } = Typography;
 
@@ -25,7 +26,7 @@ const SettingsPage: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [form] = Form.useForm();
 
-    const fetchSettings = async () => {
+    const fetchSettings = useCallback(async () => {
         try {
             setLoading(true);
             const data = await api.settings.get();
@@ -33,6 +34,7 @@ const SettingsPage: React.FC = () => {
             form.setFieldsValue({
                 restaurant_name: data.restaurant_name,
                 admin_email: data.admin_email,
+                admin_phone: data.admin_phone,
                 restaurant_tax: data.restaurant_tax,
             });
         } catch (error) {
@@ -41,13 +43,13 @@ const SettingsPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [form]);
 
     useEffect(() => {
         fetchSettings();
-    }, []);
+    }, [fetchSettings]);
 
-    const handleUpdate = async (values: any) => {
+    const handleUpdate = async (values: Partial<RestaurantSettings>) => {
         try {
             setLoading(true);
             await api.settings.update(values);
@@ -64,26 +66,28 @@ const SettingsPage: React.FC = () => {
 
     if (loading && !settings) {
         return (
-            <Card>
-                <Skeleton active />
-            </Card>
+            <div className={styles.container}>
+                <Card className={styles.card}>
+                    <Skeleton active />
+                </Card>
+            </div>
         );
     }
 
     return (
-        <div style={{ maxWidth: 800, margin: '0 auto', padding: '24px 0' }}>
+        <div className={styles.container}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className={styles.header}>
                     <div>
-                        <Title level={2} style={{ margin: 0 }}>Restaurant Settings</Title>
-                        <Text type="secondary">Manage your restaurant identity and billing configuration</Text>
+                        <Title level={2} className={styles.headerTitle}>Restaurant Settings</Title>
+                        <Text className={styles.headerSubtitle}>Manage your restaurant identity and billing configuration</Text>
                     </div>
                     {!isEditing && (
                         <Button
                             type="primary"
                             icon={<Edit2 size={16} />}
                             onClick={() => setIsEditing(true)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                            className={styles.editBtn}
                         >
                             Edit Settings
                         </Button>
@@ -92,10 +96,7 @@ const SettingsPage: React.FC = () => {
 
                 <Card
                     bordered={false}
-                    style={{
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                        borderRadius: 12
-                    }}
+                    className={styles.card}
                 >
                     {isEditing ? (
                         <Form
@@ -124,6 +125,17 @@ const SettingsPage: React.FC = () => {
                             </Form.Item>
 
                             <Form.Item
+                                label="Phone Number"
+                                name="admin_phone"
+                                rules={[
+                                    { required: true, message: 'Please enter phone number' },
+                                    { pattern: /^\+\d{1,4}\d{7,12}$/, message: 'Please enter a valid phone number with country code (e.g., +919016112497)' }
+                                ]}
+                            >
+                                <Input prefix={<Phone size={16} />} placeholder="+91 9016112497" />
+                            </Form.Item>
+
+                            <Form.Item
                                 label="Tax Percentage (%)"
                                 name="restaurant_tax"
                                 rules={[{ required: true, message: 'Please enter tax percentage' }]}
@@ -139,25 +151,28 @@ const SettingsPage: React.FC = () => {
 
                             <Divider />
 
-                            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-                                <Button icon={<X size={16} />} onClick={() => setIsEditing(false)}>
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    icon={<Save size={16} />}
-                                    loading={loading}
-                                >
-                                    Save Changes
-                                </Button>
-                            </Space>
+                            <div className={styles.formFooter}>
+                                <Space>
+                                    <Button icon={<X size={16} />} onClick={() => setIsEditing(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        icon={<Save size={16} />}
+                                        loading={loading}
+                                        className={styles.saveBtn}
+                                    >
+                                        Save Changes
+                                    </Button>
+                                </Space>
+                            </div>
                         </Form>
                     ) : (
                         <Descriptions
                             column={1}
                             bordered
-                            contentStyle={{ fontWeight: 500 }}
+                            contentStyle={{ fontWeight: 500, color: 'var(--text-primary)' }}
                             labelStyle={{ color: 'var(--text-secondary)', width: '30%' }}
                         >
                             <Descriptions.Item label={<Space><Building2 size={16} /> Restaurant Name</Space>}>
@@ -170,7 +185,7 @@ const SettingsPage: React.FC = () => {
                                 {settings?.admin_phone || <Text type="secondary">Not provided</Text>}
                             </Descriptions.Item>
                             <Descriptions.Item label={<Space><Percent size={16} /> Tax Configuration</Space>}>
-                                <Tag color="orange" style={{ fontSize: '14px', padding: '4px 8px' }}>
+                                <Tag className={styles.taxTag}>
                                     {settings?.restaurant_tax}%
                                 </Tag>
                             </Descriptions.Item>

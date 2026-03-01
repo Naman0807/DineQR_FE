@@ -1,6 +1,7 @@
 import { Modal, Form, Input, Button } from 'antd';
 import { api } from '../../services/api';
 import { useState } from 'react';
+import styles from './CategoryModal.module.css';
 
 interface CategoryModalProps {
     visible: boolean;
@@ -49,8 +50,8 @@ export function CategoryModal({ visible, onCancel, onSuccess }: CategoryModalPro
                 >
                     <Input placeholder="Enter category name" size="large" />
                 </Form.Item>
-                <Form.Item className="mb-0 flex justify-end">
-                    <div className="flex gap-3 justify-end">
+                <Form.Item className={styles.footer}>
+                    <div className={styles.footerActions}>
                         <Button onClick={onCancel} size="large">
                             Cancel
                         </Button>
@@ -59,7 +60,7 @@ export function CategoryModal({ visible, onCancel, onSuccess }: CategoryModalPro
                             htmlType="submit"
                             loading={loading}
                             size="large"
-                            className="bg-orange-500 hover:bg-orange-600"
+                            className={styles.primaryBtn}
                         >
                             Create
                         </Button>

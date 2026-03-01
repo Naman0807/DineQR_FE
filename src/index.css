@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 @supports (padding: env(safe-area-inset-bottom)) {
   .safe-bottom {
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
@@ -12,23 +10,43 @@
 
 :root {
   --bg-primary: #f9fafb;
-  --bg-secondary: rgba(255, 255, 255, 0.8);
+  --bg-secondary: #ffffff;
+  --bg-hover: #f3f4f6;
   --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --border-color: rgba(0, 0, 0, 0.05);
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --border-subtle: #f3f4f6;
   --card-bg: #ffffff;
   --nav-bg: rgba(255, 255, 255, 0.85);
+  --input-bg: #ffffff;
+  --brand-primary: #f97316;
+  --brand-hover: #ea580c;
+  --status-success-bg: #dcfce7;
+  --status-success-text: #166534;
+  --status-error-bg: #fee2e2;
+  --status-error-text: #991b1b;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .dark {
-  --bg-primary: #111827;
-  --bg-secondary: rgba(17, 24, 39, 0.8);
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --card-bg: #1f2937;
-  --nav-bg: rgba(31, 41, 55, 0.85);
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-hover: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --card-bg: #1e293b;
+  --nav-bg: rgba(30, 41, 59, 0.85);
+  --input-bg: #1e293b;
+  --status-success-bg: rgba(22, 101, 52, 0.2);
+  --status-success-text: #4ade80;
+  --status-error-bg: rgba(153, 27, 27, 0.2);
+  --status-error-text: #f87171;
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -69,4 +87,32 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+.fullPageLoading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid var(--border-subtle);
+  border-bottom-color: var(--brand-primary);
+  border-radius: 50%;
+  display: inline-block;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

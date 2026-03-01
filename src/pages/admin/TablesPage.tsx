@@ -86,7 +86,7 @@ export function TablesPage() {
 
   if (loading) {
     return (
-      <div className={styles.pageContainer} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className={styles.loadingContainer}>
         <Spin size="large" />
       </div>
     );
@@ -99,7 +99,7 @@ export function TablesPage() {
           <Title level={2} className={styles.headerTitle}>Tables</Title>
           <Text className={styles.headerSubtitle}>Manage restaurant tables and QR codes</Text>
         </Col>
-        <Col xs={24} sm={8} className={styles.actionButtons} style={{ textAlign: 'right' }}>
+        <Col xs={24} sm={8} className={styles.actionButtons}>
           <Space>
             <Button
               icon={<RefreshCw size={18} />}
@@ -111,7 +111,7 @@ export function TablesPage() {
               icon={<Plus size={18} />}
               onClick={() => setShowAddModal(true)}
               size="large"
-              style={{ backgroundColor: '#ff782d', borderColor: '#ff782d' }}
+              className={styles.primaryBtn}
             >
               Add Table
             </Button>
@@ -134,7 +134,7 @@ export function TablesPage() {
       ) : (
         <Empty
           description="No tables yet. Add your first table to get started."
-          style={{ marginTop: '64px' }}
+          className={styles.emptyState}
         />
       )}
 

@@ -48,11 +48,11 @@ export const BillView: React.FC<BillViewProps> = ({
             <div className={styles.header}>
                 <div className={styles.headerTitle}>
                     {isMobile && onBack && (
-                        <button onClick={onBack} className="p-2 -ml-2 text-gray-600 hover:text-gray-900">
-                            <ArrowLeft className="w-5 h-5" />
+                        <button onClick={onBack} className={styles.backBtn}>
+                            <ArrowLeft size={20} />
                         </button>
                     )}
-                    <Receipt className="w-5 h-5 text-orange-500" />
+                    <Receipt size={20} color="var(--brand-primary)" />
                     <span>Table {selectedSession.table_number}</span>
                 </div>
                 <p className={styles.headerSubtitle}>
@@ -83,7 +83,7 @@ export const BillView: React.FC<BillViewProps> = ({
                 </div>
 
                 <div className={styles.discountRow}>
-                    <span className="text-sm font-medium text-gray-500">Discount</span>
+                    <span className={styles.discountLabel}>Discount</span>
                     <div className={styles.discountInputWrapper}>
                         <DollarSign className={styles.discountIcon} />
                         <input
@@ -112,10 +112,10 @@ export const BillView: React.FC<BillViewProps> = ({
                         className={styles.generateBtn}
                     >
                         {processing ? (
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <div className={styles.spinner}></div>
                         ) : (
                             <>
-                                <Send className="w-5 h-5" />
+                                <Send size={20} />
                                 <span>Generate Bill</span>
                             </>
                         )}
@@ -123,7 +123,7 @@ export const BillView: React.FC<BillViewProps> = ({
                 ) : (
                     <div>
                         <div className={styles.successMessage}>
-                            <CheckCircle className="w-5 h-5" />
+                            <CheckCircle size={20} />
                             <span>Bill Generated Successfully</span>
                         </div>
                         <div className={styles.paymentGrid}>
@@ -134,7 +134,7 @@ export const BillView: React.FC<BillViewProps> = ({
                                     disabled={processing}
                                     className={styles.paymentBtn}
                                 >
-                                    <Icon className="w-6 h-6" />
+                                    <Icon size={24} />
                                     <span className={styles.paymentLabel}>{label}</span>
                                 </button>
                             ))}

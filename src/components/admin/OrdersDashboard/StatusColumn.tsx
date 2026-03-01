@@ -1,8 +1,7 @@
 import React from 'react';
 import { Typography } from 'antd';
-import type { LucideIcon } from 'lucide-react';
-import { OrderCard } from './OrderCard';
 import type { Order, OrderStatus } from '../../../types';
+import { OrderCard } from './OrderCard';
 import styles from './StatusColumn.module.css';
 
 const { Text } = Typography;
@@ -10,7 +9,7 @@ const { Text } = Typography;
 interface StatusColumnProps {
     status: OrderStatus;
     label: string;
-    icon: LucideIcon;
+    icon: React.ComponentType<{ size?: number; color?: string }>;
     color: string;
     bg: string;
     orders: Order[];
@@ -37,7 +36,7 @@ export const StatusColumn: React.FC<StatusColumnProps> = ({
                 <div className={styles.iconWrapper} style={{ backgroundColor: bg }}>
                     <Icon size={20} color={color} />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={styles.iconGroup}>
                     <h2 className={styles.title}>{label}</h2>
                     <span className={styles.count}>({orders.length})</span>
                 </div>

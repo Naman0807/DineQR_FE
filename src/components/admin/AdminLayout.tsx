@@ -58,7 +58,7 @@ export function AdminLayout() {
       {/* Premium Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <div className="flex items-center gap-4">
+          <div className={styles.logoContainer}>
             <NavLink to={adminBasePath} className={styles.logo}>
               DineQR
               <span className={styles.logoSeparator}>|</span>
@@ -81,8 +81,8 @@ export function AdminLayout() {
               <div className={styles.avatarWrapper}>
                 <Avatar
                   size="large"
-                  icon={<UserIcon size={20} />}
-                  style={{ backgroundColor: 'var(--colorPrimary)', cursor: 'pointer' }}
+                  icon={<UserIcon size={20} color="white" />}
+                  style={{ backgroundColor: 'var(--brand-primary)', cursor: 'pointer' }}
                 />
               </div>
             </Dropdown>

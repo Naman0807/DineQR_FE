@@ -1,5 +1,6 @@
 .pageContainer {
     padding: 24px;
+    min-height: 100vh;
 }
 
 .header {
@@ -8,16 +9,39 @@
 
 .headerTitle {
     margin: 0 !important;
+    color: var(--text-primary) !important;
 }
 
 .headerSubtitle {
-    color: var(--text-secondary);
+    color: var(--text-muted);
     margin-top: 4px;
 }
 
 .actionButtons {
     display: flex;
     gap: 8px;
+    justify-content: flex-end;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.primaryBtn {
+    background-color: var(--brand-primary) !important;
+    border-color: var(--brand-primary) !important;
+}
+
+.primaryBtn:hover {
+    background-color: var(--brand-hover) !important;
+    border-color: var(--brand-hover) !important;
+}
+
+.emptyState {
+    margin-top: 64px;
 }
 
 @media (max-width: 576px) {

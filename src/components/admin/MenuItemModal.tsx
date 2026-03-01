@@ -2,6 +2,7 @@ import { Modal, Form, Input, InputNumber, Select, Switch, Button } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
 import type { MenuCategory, MenuItemWithCategory, MenuItemCreate, MenuItemUpdate } from '../../types';
+import styles from './MenuItemModal.module.css';
 
 interface MenuItemModalProps {
     visible: boolean;
@@ -81,7 +82,7 @@ export function MenuItemModal({
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                className="mt-4"
+                className={styles.formArea}
             >
                 <Form.Item
                     name="category_id"
@@ -109,7 +110,7 @@ export function MenuItemModal({
                     <Input.TextArea placeholder="Enter item description" rows={3} />
                 </Form.Item>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className={styles.gridRow}>
                     <Form.Item
                         name="price"
                         label="Price (₹)"
@@ -119,7 +120,7 @@ export function MenuItemModal({
                         ]}
                     >
                         <InputNumber
-                            className="w-full"
+                            className={styles.fullWidth}
                             placeholder="0.00"
                             step={0.01}
                             size="large"
@@ -127,7 +128,7 @@ export function MenuItemModal({
                     </Form.Item>
 
                     <Form.Item name="is_available" label="Available" valuePropName="checked">
-                        <Switch className="bg-gray-200" />
+                        <Switch />
                     </Form.Item>
                 </div>
 
@@ -135,8 +136,8 @@ export function MenuItemModal({
                     <Input placeholder="Enter image URL" size="large" />
                 </Form.Item>
 
-                <Form.Item className="mb-0 mt-6 flex justify-end">
-                    <div className="flex gap-3 justify-end">
+                <Form.Item className={styles.footer}>
+                    <div className={styles.footerActions}>
                         <Button onClick={onCancel} size="large">
                             Cancel
                         </Button>
@@ -145,7 +146,7 @@ export function MenuItemModal({
                             htmlType="submit"
                             loading={loading}
                             size="large"
-                            className="bg-orange-500 hover:bg-orange-600 border-none px-8"
+                            className={styles.primaryBtn}
                         >
                             {editingItem ? 'Update' : 'Create'}
                         </Button>

@@ -1,0 +1,46 @@
+.formArea {
+    margin-top: 1rem;
+}
+
+.gridRow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.footer {
+    margin-bottom: 0;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.footerActions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.primaryBtn {
+    background-color: var(--brand-primary);
+    border: none;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.primaryBtn:hover {
+    background-color: var(--brand-hover);
+}
+
+/* Override Ant Design Switch background in light mode if needed, but Ant usually handles dark mode switch well */
+:global(.ant-switch) {
+    background-color: var(--bg-hover);
+}
+
+:global(.ant-switch-checked) {
+    background-color: var(--brand-primary) !important;
+}

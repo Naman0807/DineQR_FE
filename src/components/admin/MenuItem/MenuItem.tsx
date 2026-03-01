@@ -28,7 +28,7 @@ export function MenuItem({
                         <img src={item.image_url} alt={item.name} className={styles.image} />
                     ) : (
                         <div className={styles.placeholder}>
-                            <Package className="w-5 h-5 text-gray-400" />
+                            <Package />
                         </div>
                     )}
                     <div className={styles.titleRow}>
@@ -56,7 +56,7 @@ export function MenuItem({
                         onClick={() => onToggleAvailability(item)}
                         className={`${styles.badge} ${item.is_available ? styles.badgeAvailable : styles.badgeUnavailable}`}
                     >
-                        {item.is_available ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                        {item.is_available ? <Check /> : <X />}
                         {item.is_available ? 'Available' : 'Out of Stock'}
                     </button>
                 </div>
@@ -68,21 +68,21 @@ export function MenuItem({
                         className={`${styles.iconBtn} lg:hidden`}
                         title={isExpanded ? "Collapse" : "Expand"}
                     >
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {isExpanded ? <ChevronUp /> : <ChevronDown />}
                     </button>
                     <button
                         onClick={() => onEdit(item)}
                         className={styles.iconBtn}
                         title="Edit"
                     >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 />
                     </button>
                     <button
                         onClick={() => onDelete(item.id)}
                         className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
                         title="Delete"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 />
                     </button>
                 </div>
             </div>

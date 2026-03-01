@@ -1,25 +1,26 @@
 .container {
   min-height: 100vh;
-  background-color: #f9fafb; /* gray-50 */
+  background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .cardWrapper {
   width: 100%;
-  max-width: 448px; /* max-w-md */
+  max-width: 448px;
+  /* max-w-md */
 }
 
 .card {
-  background-color: #ffffff;
-  border-radius: 1.25rem; /* rounded-2xl */
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+  background-color: var(--card-bg);
+  border-radius: 1.25rem;
+  /* rounded-2xl */
+  box-shadow: var(--card-shadow);
   padding: 2.5rem;
-  border: 1px solid #f3f4f6; /* border-gray-100 */
+  border: 1px solid var(--border-color);
 }
 
 @media (min-width: 768px) {
@@ -39,31 +40,30 @@
 .iconWrapper {
   width: 5rem;
   height: 5rem;
-  background-color: #fff7ed; /* orange-50 */
+  background-color: var(--status-success-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  box-shadow: 0 0 0 8px rgba(255, 247, 237, 0.5); /* ring-8 orange-50/50 */
 }
 
 .icon {
   width: 2.5rem;
   height: 2.5rem;
-  color: #f97316; /* orange-500 */
+  color: var(--brand-primary);
 }
 
 .title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   letter-spacing: -0.025em;
   margin: 0;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   margin-top: 0.5rem;
   font-size: 1rem;
 }
@@ -71,18 +71,21 @@
 .error {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background-color: #fef2f2;
-  border-left: 4px solid #ef4444;
-  color: #b91c1c;
+  background-color: var(--status-error-bg);
+  border-left: 4px solid var(--status-error-text);
+  color: var(--status-error-text);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  animation: fadeIn 0.3s ease-in;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .form {
@@ -101,24 +104,25 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-secondary);
   margin-left: 0.25rem;
 }
 
 .input {
   width: 100%;
   padding: 0.875rem 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   font-size: 1rem;
   font-weight: 500;
-  background-color: rgba(249, 250, 251, 0.3);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
   transition: all 0.2s ease;
   outline: none;
 }
 
 .input:focus {
-  border-color: #f97316;
+  border-color: var(--brand-primary);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
@@ -136,7 +140,7 @@
   top: 50%;
   transform: translateY(-50%);
   padding: 0.375rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   background: none;
   border: none;
   cursor: pointer;
@@ -148,13 +152,13 @@
 }
 
 .toggleButton:hover {
-  color: #f97316;
+  color: var(--brand-primary);
 }
 
 .submitButton {
   width: 100%;
   padding: 1rem;
-  background-color: #f97316;
+  background-color: var(--brand-primary);
   color: white;
   border: none;
   border-radius: 0.75rem;
@@ -167,7 +171,7 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #ea580c;
+  background-color: var(--brand-hover);
 }
 
 .submitButton:active:not(:disabled) {
@@ -187,19 +191,19 @@
 }
 
 .footerText {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
 .link {
-  color: #f97316;
+  color: var(--brand-primary);
   text-decoration: none;
   font-weight: 700;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #ea580c;
+  color: var(--brand-hover);
 }
 
 .backLinkWrapper {
@@ -208,7 +212,7 @@
 }
 
 .backLink {
-  color: #9ca3af;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -219,5 +223,5 @@
 }
 
 .backLink:hover {
-  color: #4b5563;
+  color: var(--text-primary);
 }

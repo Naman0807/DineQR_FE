@@ -1,0 +1,66 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.headerTitle {
+    margin: 0 !important;
+    color: var(--text-primary) !important;
+}
+
+.headerSubtitle {
+    color: var(--text-muted) !important;
+}
+
+.editBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card {
+    box-shadow: var(--card-shadow);
+    border-radius: 12px;
+    background-color: var(--card-bg);
+}
+
+.formFooter {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.saveBtn {
+    background-color: var(--brand-primary);
+    border: none;
+}
+
+.saveBtn:hover {
+    background-color: var(--brand-hover);
+}
+
+.descriptionLabel {
+    color: var(--text-muted) !important;
+    width: 30%;
+}
+
+.descriptionContent {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.taxTag {
+    font-size: 14px;
+    padding: 4px 8px;
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+    border: none;
+}

@@ -1,0 +1,20 @@
+.footer {
+    margin-bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.footerActions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.primaryBtn {
+    background-color: var(--brand-primary);
+    border: none;
+}
+
+.primaryBtn:hover {
+    background-color: var(--brand-hover);
+}
