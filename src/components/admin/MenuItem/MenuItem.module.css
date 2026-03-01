@@ -1,0 +1,202 @@
+.item {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+    background-color: white;
+}
+
+.item:hover {
+    background-color: #f9fafb;
+}
+
+/* Base Mobile Styles */
+.mobileMain {
+    display: flex;
+    gap: 1rem;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+}
+
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.25rem;
+}
+
+.name {
+    font-weight: 500;
+    color: #111827;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.categoryLabel {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.mobileFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+}
+
+/* Shared Components */
+.image,
+.placeholder {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.placeholder {
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.badgeAvailable {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badgeUnavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.actionBtns {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.iconBtn {
+    padding: 0.5rem;
+    color: #6b7280;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.iconBtn:hover {
+    color: #f97316;
+    background-color: #fff7ed;
+}
+
+.iconBtnDanger:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.expandedContent {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* Desktop Overrides */
+@media (min-width: 1024px) {
+    .item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1.2fr 100px;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .mobileMain {
+        display: contents;
+    }
+
+    .content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .titleRow {
+        display: block;
+        margin: 0;
+    }
+
+    .categoryCell {
+        font-size: 0.875rem;
+        color: #4b5563;
+    }
+
+    .desktopOnly {
+        display: block;
+    }
+
+    .mobileOnly {
+        display: none;
+    }
+
+    .mobileFooter {
+        display: contents;
+    }
+
+    .desktopPrice {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .actionBtns {
+        justify-content: flex-end;
+    }
+
+    .descriptionRow {
+        grid-column: 1 / 4;
+        /* Spans across Item, Category, Price columns */
+        margin-top: -0.5rem;
+        padding-left: 3.25rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .description {
+        font-size: 0.8125rem;
+        color: #6b7280;
+    }
+}
+
+@media (max-width: 1023px) {
+    .desktopOnly {
+        display: none;
+    }
+}

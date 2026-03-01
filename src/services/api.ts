@@ -242,6 +242,16 @@ export const api = {
       await apiClient.delete(`/api/superadmin/restaurants/${id}`);
     },
   },
+  settings: {
+    get: async () => {
+      const response = await apiClient.get<import('../types').RestaurantSettings>('/api/settings');
+      return response.data;
+    },
+    update: async (data: import('../types').UpdateSettingsRequest) => {
+      const response = await apiClient.put<import('../types').RestaurantSettings>('/api/settings', data);
+      return response.data;
+    },
+  },
 };
 
 export const wsUrl = API_BASE.replace('http', 'ws');

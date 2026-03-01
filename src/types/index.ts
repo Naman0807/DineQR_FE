@@ -187,6 +187,7 @@ export interface User {
   email: string;
   role: UserRole;
   restaurant_id?: string;
+  restaurant_name?: string;
   created_at: string;
 }
 
@@ -236,4 +237,19 @@ export interface UpdateRestaurantAdminRequest {
   admin_username?: string;
   admin_email?: string;
   admin_password?: string;
+}
+
+export interface RestaurantSettings {
+  restaurant_id: string;
+  restaurant_name: string;
+  restaurant_slug: string;
+  restaurant_tax: number;
+  admin_email: string;
+  admin_phone: string;
+}
+
+export interface UpdateSettingsRequest {
+  restaurant_name?: string;
+  admin_email?: string;
+  restaurant_tax?: number;
 }

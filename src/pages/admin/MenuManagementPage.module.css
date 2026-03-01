@@ -146,152 +146,28 @@
     color: white;
 }
 
-/* Table Styles */
-.tableContainer {
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table thead {
-    background-color: #f9fafb;
-}
-
-.table th {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.table tr {
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.2s ease;
-}
-
-.table tr:hover {
-    background-color: #f9fafb;
-}
-
-.table td {
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-/* Mobile List View */
-.mobileList {
+.responsiveList {
     display: flex;
     flex-direction: column;
 }
 
-.mobileItem {
-    padding: 1rem;
+.tableHeader {
+    grid-template-columns: 2fr 1fr 1fr 1.2fr 100px;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #f9fafb;
     border-bottom: 1px solid #f3f4f6;
-}
-
-.mobileItem:last-child {
-    border-bottom: none;
-}
-
-.itemInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.itemImage {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.5rem;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-.itemPlaceholder {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.5rem;
-    background-color: #f3f4f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.itemName {
-    font-weight: 500;
-    color: #111827;
-    font-size: 0.875rem;
-}
-
-.itemDesc {
-    font-size: 0.75rem;
     color: #6b7280;
-    max-width: 20rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.price {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #111827;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 9999px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.badgeAvailable {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.badgeUnavailable {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-.actionBtns {
+.itemsList {
     display: flex;
-    justify-content: flex-end;
-    gap: 0.25rem;
-}
-
-.iconBtn {
-    padding: 0.5rem;
-    color: #6b7280;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.iconBtn:hover {
-    color: #f97316;
-    background-color: #fff7ed;
-}
-
-.iconBtnDanger:hover {
-    color: #ef4444;
-    background-color: #fef2f2;
+    flex-direction: column;
 }
 
 .emptyState {

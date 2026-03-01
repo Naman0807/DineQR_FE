@@ -4,14 +4,21 @@ import {
   UtensilsCrossed,
   Users,
   Receipt,
-  LogOut
+  LogOut,
+  Moon,
+  Sun,
+  Settings,
+  User as UserIcon
 } from 'lucide-react';
+import { Avatar, Dropdown, type MenuProps } from 'antd';
 import { useAuth } from '../../stores/AuthContext';
+import { useTheme } from '../../theme/ThemeContext';
 import styles from './AdminLayout.module.css';
 
 export function AdminLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const adminBasePath = restaurantSlug ? `/${restaurantSlug}/admin` : '/admin';
 
@@ -27,27 +34,58 @@ export function AdminLayout() {
     navigate('/admin/login');
   };
 
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'settings',
+      icon: <Settings size={16} />,
+      label: 'Settings',
+      onClick: () => navigate(`${adminBasePath}/settings`),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogOut size={16} />,
+      label: 'Logout',
+      danger: true,
+      onClick: handleLogout,
+    },
+  ];
+
   return (
     <div className={styles.layout}>
       {/* Premium Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <NavLink to={adminBasePath} className={styles.logo}>
-            DineQR
-          </NavLink>
+          <div className="flex items-center gap-4">
+            <NavLink to={adminBasePath} className={styles.logo}>
+              DineQR
+              <span className={styles.logoSeparator}>|</span>
+              <span className={styles.logoRestaurantName}>
+                {user?.restaurant_name || restaurantSlug || 'Restaurant'}
+              </span>
+            </NavLink>
+          </div>
 
           <div className={styles.headerActions}>
-            <div className={styles.userInfo}>
-              <span className={styles.username}>{user?.username || 'Admin'}</span>
-              <span className={styles.userRole}>{user?.role || 'Staff'}</span>
-            </div>
             <button
-              onClick={handleLogout}
-              className={styles.logoutBtn}
-              title="Logout"
+              onClick={toggleTheme}
+              className={styles.themeToggle}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <LogOut className="w-5 h-5" />
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+
+            <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={['click']}>
+              <div className={styles.avatarWrapper}>
+                <Avatar
+                  size="large"
+                  icon={<UserIcon size={20} />}
+                  style={{ backgroundColor: 'var(--colorPrimary)', cursor: 'pointer' }}
+                />
+              </div>
+            </Dropdown>
           </div>
         </div>
       </header>

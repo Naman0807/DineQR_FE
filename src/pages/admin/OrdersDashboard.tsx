@@ -1,29 +1,42 @@
-import { useEffect, useState, useRef } from 'react';
-import { Clock, ChefHat, CheckCircle, Bell, Volume2, VolumeX } from 'lucide-react';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { Typography, Tabs, Space, Spin, Empty, Button, Badge, message } from 'antd';
+import {
+  Clock,
+  ChefHat,
+  CheckCircle,
+  Bell,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
 import { api } from '../../services/api';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import type { Order, OrderStatus } from '../../types';
+import { StatusColumn } from '../../components/admin/OrdersDashboard/StatusColumn';
+import { OrderCard } from '../../components/admin/OrdersDashboard/OrderCard';
+import styles from './OrdersDashboard.module.css';
 
-const statusConfig: Record<OrderStatus, { label: string; icon: typeof Clock; color: string; bg: string; next?: OrderStatus }> = {
-  received: { 
-    label: 'Received', 
-    icon: Clock, 
-    color: 'text-blue-500', 
-    bg: 'bg-blue-100',
+const { Title, Text } = Typography;
+
+const statusConfig: Record<OrderStatus, { label: string; icon: React.ComponentType<{ size?: number; color?: string }>; color: string; bg: string; next?: OrderStatus; nextLabel?: string }> = {
+  received: {
+    label: 'Received',
+    icon: Clock,
+    color: '#3b82f6',
+    bg: 'rgba(59, 130, 246, 0.1)',
     next: 'preparing'
   },
-  preparing: { 
-    label: 'Preparing', 
-    icon: ChefHat, 
-    color: 'text-orange-500', 
-    bg: 'bg-orange-100',
+  preparing: {
+    label: 'Preparing',
+    icon: ChefHat,
+    color: '#f97316',
+    bg: 'rgba(249, 115, 22, 0.1)',
     next: 'served'
   },
-  served: { 
-    label: 'Served', 
-    icon: CheckCircle, 
-    color: 'text-green-500', 
-    bg: 'bg-green-100'
+  served: {
+    label: 'Served',
+    icon: CheckCircle,
+    color: '#22c55e',
+    bg: 'rgba(34, 197, 10, 0.1)'
   },
 };
 
@@ -51,8 +64,9 @@ export function OrdersDashboard() {
       const newOrder = lastMessage.data as Order;
       setOrders(prev => [newOrder, ...prev]);
       if (soundEnabled && audioRef.current) {
-        audioRef.current.play().catch(() => {});
+        audioRef.current.play().catch(() => { });
       }
+      message.info(`New order received! Table ${newOrder.table_number} `);
     } else if (lastMessage?.event === 'order_updated') {
       const updatedOrder = lastMessage.data as Order;
       setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
@@ -62,11 +76,12 @@ export function OrdersDashboard() {
   const fetchOrders = async () => {
     try {
       const data = await api.orders.getActive();
-      setOrders(data.sort((a, b) => 
+      setOrders(data.sort((a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       ));
     } catch (error) {
       console.error('Failed to fetch orders:', error);
+      message.error('Failed to sync orders');
     } finally {
       setLoading(false);
     }
@@ -75,9 +90,10 @@ export function OrdersDashboard() {
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
     try {
       await api.orders.updateStatus(orderId, { status: newStatus });
+      message.success(`Order marked as ${statusConfig[newStatus].label} `);
     } catch (error) {
       console.error('Failed to update status:', error);
-      alert('Failed to update order status');
+      message.error('Failed to update order status');
     }
   };
 
@@ -94,214 +110,127 @@ export function OrdersDashboard() {
     return `${hours}h ${minutes % 60}m ago`;
   };
 
-  const ordersByStatus = {
+  const ordersByStatus = useMemo(() => ({
     received: orders.filter(o => o.status === 'received'),
     preparing: orders.filter(o => o.status === 'preparing'),
     served: orders.filter(o => o.status === 'served'),
-  };
+  }), [orders]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+        <Spin size="large" tip="Loading orders..." />
       </div>
     );
   }
 
+  const tabItems = (['received', 'preparing', 'served'] as OrderStatus[]).map(status => {
+    const config = statusConfig[status];
+    const Icon = config.icon;
+    const count = ordersByStatus[status].length;
+
+    return {
+      key: status,
+      label: (
+        <Space>
+          <Icon size={16} />
+          {config.label}
+          <Badge count={count} offset={[10, 0]} size="small" style={{ backgroundColor: config.color }} />
+        </Space>
+      ),
+      children: (
+        <div className="space-y-4 pt-4">
+          {ordersByStatus[status].map(order => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              onStatusUpdate={handleStatusUpdate}
+              getTimeAgo={getTimeAgo}
+              formatTime={formatTime}
+              statusConfig={statusConfig}
+            />
+          ))}
+          {ordersByStatus[status].length === 0 && (
+            <Empty description={`No ${status} orders`} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          )}
+        </div>
+      )
+    };
+  });
+
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row md:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-5 lg:mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Orders Dashboard</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <span className={`flex items-center gap-1 text-sm ${isConnected ? 'text-green-500' : 'text-gray-400'}`}>
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-              {isConnected ? 'Live' : 'Disconnected'}
-            </span>
-            <span className="text-gray-400">|</span>
-            <span className="text-sm text-gray-500">{orders.length} active orders</span>
+    <div className={styles.pageContainer}>
+      <header className={styles.header}>
+        <div className={styles.titleSection}>
+          <Title level={2} className={styles.title}>Orders Dashboard</Title>
+          <div className={styles.statusInfo}>
+            <div className={styles.liveIndicator}>
+              <div
+                className={styles.dot}
+                style={{ backgroundColor: isConnected ? '#22c55e' : '#9ca3af' }}
+              />
+              <Text type={isConnected ? undefined : 'secondary'}>
+                {isConnected ? 'Live Sync' : 'Reconnecting...'}
+              </Text>
+            </div>
+            <span className={styles.activeOrders}>• {orders.length} active orders</span>
           </div>
         </div>
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className={`p-2.5 min-h-[44px] min-w-[44px] rounded-lg transition-colors ${soundEnabled ? 'text-orange-500 bg-orange-50' : 'text-gray-400 bg-gray-100'}`}
-          title={soundEnabled ? 'Sound On' : 'Sound Off'}
-        >
-          {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-        </button>
+
+        <div className={styles.controls}>
+          <Button
+            shape="circle"
+            icon={soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={soundEnabled ? 'text-orange-500' : 'text-gray-400'}
+            title={soundEnabled ? 'Disable Sound' : 'Enable Sound'}
+          />
+          <Button
+            shape="circle"
+            icon={<Bell size={20} />}
+            title="Notifications"
+          />
+        </div>
+      </header>
+
+      {/* Desktop Grid View */}
+      <div className={styles.desktopGrid}>
+        {(['received', 'preparing', 'served'] as OrderStatus[]).map(status => (
+          <StatusColumn
+            key={status}
+            status={status}
+            {...statusConfig[status]}
+            orders={ordersByStatus[status]}
+            onStatusUpdate={handleStatusUpdate}
+            getTimeAgo={getTimeAgo}
+            formatTime={formatTime}
+            statusConfig={statusConfig}
+          />
+        ))}
       </div>
 
-      {orders.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 lg:p-12 text-center">
-          <Bell className="w-10 h-10 md:w-12 md:h-12 text-gray-300 mx-auto mb-3 md:mb-4" />
-          <p className="text-gray-500">No active orders</p>
-          <p className="text-sm text-gray-400 mt-1">New orders will appear here in real-time</p>
+      {/* Mobile/Tablet Tab View */}
+      <div className={styles.mobileTabs}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key as OrderStatus)}
+          items={tabItems}
+          animated
+        />
+      </div>
+
+      {orders.length === 0 && (
+        <div className={styles.emptyState}>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_DEFAULT}
+            description={
+              <Space direction="vertical" align="center">
+                <Text strong style={{ fontSize: '18px' }}>Waiting for orders</Text>
+                <Text type="secondary">New orders will appear here automatically</Text>
+              </Space>
+            }
+          />
         </div>
-      ) : (
-        <>
-          {/* Mobile/Tablet Tabs */}
-          <div className="lg:hidden flex gap-2 md:gap-3 mb-4 md:mb-5 overflow-x-auto pb-2 -mx-4 md:-mx-5 lg:-mx-6 px-4 md:px-5 lg:px-6 scrollbar-hide">
-            {(['received', 'preparing', 'served'] as OrderStatus[]).map(status => {
-              const config = statusConfig[status];
-              const StatusIcon = config.icon;
-              const count = ordersByStatus[status].length;
-              
-              return (
-                <button
-                  key={status}
-                  onClick={() => setActiveTab(status)}
-                  className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg whitespace-nowrap transition-colors ${
-                    activeTab === status
-                      ? `${config.bg} ${config.color} font-medium`
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <StatusIcon className="w-4 h-4" />
-                  {config.label}
-                  <span className="text-xs bg-white/50 px-1.5 py-0.5 rounded-full">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mobile/Tablet View - Single Column */}
-          <div className="lg:hidden space-y-3 md:space-y-4">
-            {ordersByStatus[activeTab].map(order => {
-              const config = statusConfig[activeTab];
-              const StatusIcon = config.icon;
-              
-              return (
-                <div
-                  key={order.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-                >
-                  <div className="p-4 md:p-5 border-b border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="font-bold text-lg md:text-xl">Table {order.table_number}</span>
-                        <p className="text-sm text-gray-500">{getTimeAgo(order.created_at)}</p>
-                      </div>
-                      <div className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:py-2 rounded-full ${config.bg}`}>
-                        <StatusIcon className={`w-4 h-4 ${config.color}`} />
-                        <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 md:p-5">
-                    <ul className="space-y-2 md:space-y-3">
-                      {order.items.map(item => (
-                        <li key={item.id} className="flex justify-between text-sm md:text-base">
-                          <span>
-                            <span className="font-medium">{item.quantity}x</span>
-                            <span className="ml-2">{item.menu_item_name}</span>
-                          </span>
-                          <span className="text-gray-500">₹{(item.unit_price * item.quantity).toFixed(2)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-100 flex justify-between">
-                      <span className="font-medium">Total</span>
-                      <span className="font-bold text-orange-500">₹{order.total_amount.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  {config.next && (
-                    <div className="p-3 md:p-4 bg-gray-50 border-t border-gray-100">
-                      <button
-                        onClick={() => handleStatusUpdate(order.id, config.next!)}
-                        className="w-full py-3 md:py-3.5 min-h-[48px] bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
-                      >
-                        Mark as {statusConfig[config.next!].label}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            
-            {ordersByStatus[activeTab].length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No {activeTab} orders
-              </div>
-            )}
-          </div>
-
-          {/* Desktop View - Three Columns */}
-          <div className="hidden lg:grid gap-5 lg:gap-6 grid-cols-3">
-            {(['received', 'preparing', 'served'] as OrderStatus[]).map(status => {
-              const config = statusConfig[status];
-              const StatusIcon = config.icon;
-              const statusOrders = ordersByStatus[status];
-
-              return (
-                <div key={status} className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-lg ${config.bg}`}>
-                      <StatusIcon className={`w-5 h-5 ${config.color}`} />
-                    </div>
-                    <h2 className="font-semibold text-gray-900">{config.label}</h2>
-                    <span className="text-sm text-gray-500">({statusOrders.length})</span>
-                  </div>
-
-                  <div className="space-y-3 md:space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto">
-                    {statusOrders.map(order => (
-                      <div
-                        key={order.id}
-                        className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-                      >
-                        <div className="p-4 md:p-5 border-b border-gray-100">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="font-bold text-lg">Table {order.table_number}</span>
-                              <p className="text-sm text-gray-500">{getTimeAgo(order.created_at)}</p>
-                            </div>
-                            <span className="text-sm text-gray-500">{formatTime(order.created_at)}</span>
-                          </div>
-                        </div>
-
-                        <div className="p-4 md:p-5">
-                          <ul className="space-y-2 md:space-y-3">
-                            {order.items.map(item => (
-                              <li key={item.id} className="flex justify-between text-sm">
-                                <span>
-                                  <span className="font-medium">{item.quantity}x</span>
-                                  <span className="ml-2">{item.menu_item_name}</span>
-                                </span>
-                                <span className="text-gray-500">₹{(item.unit_price * item.quantity).toFixed(2)}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-100 flex justify-between">
-                            <span className="font-medium">Total</span>
-                            <span className="font-bold text-orange-500">₹{order.total_amount.toFixed(2)}</span>
-                          </div>
-                        </div>
-
-                        {config.next && (
-                          <div className="p-3 md:p-4 bg-gray-50 border-t border-gray-100">
-                            <button
-                              onClick={() => handleStatusUpdate(order.id, config.next!)}
-                              className="w-full py-2.5 md:py-3 min-h-[44px] bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
-                            >
-                              Mark as {statusConfig[config.next!].label}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    
-                    {statusOrders.length === 0 && (
-                      <div className="text-center py-8 text-gray-400 text-sm">
-                        No orders
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
       )}
     </div>
   );

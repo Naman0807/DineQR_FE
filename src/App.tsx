@@ -14,12 +14,13 @@ import { TablesPage } from './pages/admin/TablesPage';
 import { MenuManagementPage } from './pages/admin/MenuManagementPage';
 import { OrdersDashboard } from './pages/admin/OrdersDashboard';
 import { BillingPage } from './pages/admin/BillingPage';
+import SettingsPage from './pages/admin/SettingsPage';
 
 import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 
 function SuperAdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -64,7 +65,7 @@ function App() {
           <Route path="/admin/login" element={<LoginPage />} />
           <Route path="/admin/register" element={<RegisterPage />} />
           <Route path="/admin/:restaurantSlug/*" element={<LegacyAdminRouteRedirect />} />
-          
+
           <Route path="/superadmin/login" element={<LoginPage />} />
           <Route path="/superadmin/register" element={<Navigate to="/superadmin/login" replace />} />
           <Route path="/superadmin/dashboard" element={
@@ -87,6 +88,7 @@ function App() {
             <Route path="tables" element={<TablesPage />} />
             <Route path="menu" element={<MenuManagementPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route
             path="/:restaurantSlug/admin/*"
@@ -100,6 +102,7 @@ function App() {
             <Route path="tables" element={<TablesPage />} />
             <Route path="menu" element={<MenuManagementPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
 
           <Route
