@@ -45,7 +45,8 @@ frontend/
 │   │       ├── TablesPage.tsx      # Table & QR management
 │   │       ├── MenuManagementPage.tsx
 │   │       ├── OrdersDashboard.tsx
-│   │       └── BillingPage.tsx
+│   │       ├── BillingPage.tsx
+│   │       └── SettingsPage.tsx        # Restaurant profile & tax settings
 │   ├── services/
 │   │   └── api.ts                  # API client
 │   ├── stores/
@@ -79,6 +80,7 @@ frontend/
 | `/admin/tables`  | Table & QR code management    |
 | `/admin/menu`    | Menu items & categories       |
 | `/admin/billing` | Bill generation & payments    |
+| `/admin/settings`| Restaurant & Profile settings |
 
 ## Setup
 
@@ -116,8 +118,10 @@ bun run build
 
 ## Notes
 
-- Prices are displayed in Indian Rupees (₹)
-- Customer UI is optimized for mobile with safe area padding for notched devices
+- Prices are displayed in Indian Rupees (₹).
+- **Notifications**: Sound notifications for new orders require user interaction with the page first (browser policy).
+- **WebSockets**: The `useWebSocket` hook manages real-time order updates for customers and live dashboard refreshes for admins.
+- Customer UI is optimized for mobile with safe area padding for notched devices.
 - Admin UI is responsive with collapsible sidebar on desktop and bottom navigation on mobile
 - Backend returns Decimal fields as strings - they are converted to numbers in the API service
 - QR codes are returned as base64 strings and converted to data URLs for display/download
