@@ -139,6 +139,7 @@ export interface Bill {
   payment_method?: PaymentMethod;
   created_at: string;
   paid_at?: string;
+  table_number?: number;
 }
 
 export interface BillWithOrders extends Bill {

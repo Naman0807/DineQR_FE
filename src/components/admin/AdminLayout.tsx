@@ -8,7 +8,8 @@ import {
   Moon,
   Sun,
   Settings,
-  User as UserIcon
+  User as UserIcon,
+  History
 } from 'lucide-react';
 import { Avatar, Dropdown, type MenuProps } from 'antd';
 import { useAuth } from '../../stores/AuthContext';
@@ -27,6 +28,7 @@ export function AdminLayout() {
     { to: `${adminBasePath}/tables`, icon: Users, label: 'Tables' },
     { to: `${adminBasePath}/menu`, icon: UtensilsCrossed, label: 'Menu' },
     { to: `${adminBasePath}/billing`, icon: Receipt, label: 'Billing' },
+    { to: `${adminBasePath}/history`, icon: History, label: 'History' },
   ];
 
   const handleLogout = () => {

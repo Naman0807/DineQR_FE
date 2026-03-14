@@ -1,0 +1,103 @@
+.historyContainer {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.iconWrapper {
+    background: var(--brand-primary);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.statsGrid {
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background: var(--bg-secondary) !important;
+    border-radius: 1rem !important;
+    border: 1px solid var(--border-color) !important;
+    transition: transform 0.2s;
+}
+
+.statCard:hover {
+    transform: translateY(-2px);
+}
+
+.statIcon {
+    color: var(--brand-primary);
+    margin-right: 8px;
+}
+
+.searchBar {
+    margin-bottom: 1.5rem;
+}
+
+.searchInput {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    border-radius: 0.75rem !important;
+}
+
+.tableCard {
+    background: var(--bg-secondary) !important;
+    border-radius: 1rem !important;
+    border: 1px solid var(--border-color) !important;
+    overflow: hidden;
+}
+
+.statusTag {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    padding: 2px 10px !important;
+}
+
+.downloadBtn:hover {
+    color: #10b981 !important;
+}
+
+.detailModal :global(.ant-modal-content) {
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.antdTable :global(.ant-table) {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.antdTable :global(.ant-table-thead > tr > th) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: var(--text-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.antdTable :global(.ant-table-tbody > tr > td) {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.antdTable :global(.ant-table-row:hover > td) {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+@media (max-width: 768px) {
+    .historyContainer {
+        padding: 1rem;
+        padding-bottom: 5rem;
+    }
+}

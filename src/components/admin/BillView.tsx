@@ -15,6 +15,7 @@ interface BillViewProps {
     onDownloadPDF?: () => void | Promise<void>;
     onBack?: () => void;
     isMobile?: boolean;
+    hideActions?: boolean;
     restaurantName?: string;
 }
 
@@ -30,6 +31,7 @@ export const BillView: React.FC<BillViewProps> = ({
     onDownloadPDF,
     onBack,
     isMobile = false,
+    hideActions = false,
     restaurantName = 'Restaurant',
 }) => {
     const allItems = selectedSession.orders.flatMap(o => o.items);
@@ -157,86 +159,88 @@ export const BillView: React.FC<BillViewProps> = ({
             </div>
 
             {/* Action Section - Hidden when printing */}
-            <div className={styles.actionSection} data-print-hide>
-                {!bill ? (
-                    <button
-                        onClick={onGenerateBill}
-                        disabled={processing}
-                        className={styles.generateBtn}
-                    >
-                        {processing ? (
-                            <div className={styles.spinner}></div>
-                        ) : (
-                            <>
-                                <Send size={20} />
-                                <span>Generate Bill</span>
-                            </>
-                        )}
-                    </button>
-                ) : (
-                    <div>
-                        <div className={styles.successMessage}>
-                            <CheckCircle size={20} />
-                            <span>Bill Generated Successfully</span>
-                        </div>
-                        <div className={styles.buttonGroup}>
-                            <button
-                                onClick={() => window.print()}
-                                className={styles.printBtn}
-                            >
-                                <Printer size={20} />
-                                <span>Print Bill</span>
-                            </button>
-                            <button
-                                onClick={onDownloadPDF}
-                                disabled={processing}
-                                className={styles.downloadBtn}
-                            >
-                                {processing ? (
-                                    <div className={styles.spinner}></div>
-                                ) : (
-                                    <>
-                                        <Download size={20} />
-                                        <span>Download PDF</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
-
-                        {!bill.paid_at && (
-                            <div className={styles.discountEditSection}>
-                                <div className={styles.discountLabel}>Add Discount</div>
-                                <div className={styles.discountInputWrapper}>
-                                    <DollarSign className={styles.discountIcon} />
-                                    <input
-                                        type="number"
-                                        value={discount}
-                                        onChange={(e) => setDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
-                                        className={styles.discountInput}
-                                        placeholder="0.00"
-                                        min="0"
-                                        step="0.01"
-                                    />
-                                </div>
+            {!hideActions && (
+                <div className={styles.actionSection} data-print-hide>
+                    {!bill ? (
+                        <button
+                            onClick={onGenerateBill}
+                            disabled={processing}
+                            className={styles.generateBtn}
+                        >
+                            {processing ? (
+                                <div className={styles.spinner}></div>
+                            ) : (
+                                <>
+                                    <Send size={20} />
+                                    <span>Generate Bill</span>
+                                </>
+                            )}
+                        </button>
+                    ) : (
+                        <div>
+                            <div className={styles.successMessage}>
+                                <CheckCircle size={20} />
+                                <span>Bill Generated Successfully</span>
                             </div>
-                        )}
-
-                        <div className={styles.paymentGrid}>
-                            {paymentMethods.map(({ method, icon: Icon, label }) => (
+                            <div className={styles.buttonGroup}>
                                 <button
-                                    key={method}
-                                    onClick={() => onPayment(method)}
-                                    disabled={processing}
-                                    className={styles.paymentBtn}
+                                    onClick={() => window.print()}
+                                    className={styles.printBtn}
                                 >
-                                    <Icon size={24} />
-                                    <span className={styles.paymentLabel}>{label}</span>
+                                    <Printer size={20} />
+                                    <span>Print Bill</span>
                                 </button>
-                            ))}
+                                <button
+                                    onClick={onDownloadPDF}
+                                    disabled={processing}
+                                    className={styles.downloadBtn}
+                                >
+                                    {processing ? (
+                                        <div className={styles.spinner}></div>
+                                    ) : (
+                                        <>
+                                            <Download size={20} />
+                                            <span>Download PDF</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+
+                            {!bill.paid_at && (
+                                <div className={styles.discountEditSection}>
+                                    <div className={styles.discountLabel}>Add Discount</div>
+                                    <div className={styles.discountInputWrapper}>
+                                        <DollarSign className={styles.discountIcon} />
+                                        <input
+                                            type="number"
+                                            value={discount}
+                                            onChange={(e) => setDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
+                                            className={styles.discountInput}
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="0.01"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className={styles.paymentGrid}>
+                                {paymentMethods.map(({ method, icon: Icon, label }) => (
+                                    <button
+                                        key={method}
+                                        onClick={() => onPayment(method)}
+                                        disabled={processing}
+                                        className={styles.paymentBtn}
+                                    >
+                                        <Icon size={24} />
+                                        <span className={styles.paymentLabel}>{label}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

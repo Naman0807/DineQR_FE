@@ -42,6 +42,7 @@ function transformBill(bill: any): Bill {
     tax_amount: parseFloat(bill.tax_amount) || 0,
     discount_amount: parseFloat(bill.discount_amount) || 0,
     final_total: parseFloat(bill.final_total) || 0,
+    table_number: bill.table_number || (bill.session && bill.session.table ? bill.session.table.table_number : undefined),
   };
 }
 
@@ -198,6 +199,10 @@ export const api = {
         ? `/api/bills/${restaurantSlug}/session/${sessionId}`
         : `/api/bills/by-session/${sessionId}`;
       const response = await apiClient.get<any>(url);
+      return transformBillWithOrders(response.data);
+    },
+    getDetails: async (id: string): Promise<BillWithOrders> => {
+      const response = await apiClient.get<any>(`/api/bills/${id}/details`);
       return transformBillWithOrders(response.data);
     },
     getById: async (id: string, restaurantSlug?: string): Promise<Bill> => {

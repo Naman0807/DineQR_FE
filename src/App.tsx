@@ -15,6 +15,7 @@ import { MenuManagementPage } from './pages/admin/MenuManagementPage';
 import { OrdersDashboard } from './pages/admin/OrdersDashboard';
 import { BillingPage } from './pages/admin/BillingPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import BillHistoryPage from './pages/admin/BillHistoryPage';
 
 import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 
@@ -88,6 +89,7 @@ function App() {
             <Route path="tables" element={<TablesPage />} />
             <Route path="menu" element={<MenuManagementPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="history" element={<BillHistoryPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route
@@ -102,6 +104,7 @@ function App() {
             <Route path="tables" element={<TablesPage />} />
             <Route path="menu" element={<MenuManagementPage />} />
             <Route path="billing" element={<BillingPage />} />
+            <Route path="history" element={<BillHistoryPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 
