@@ -219,6 +219,18 @@ export const api = {
       const response = await apiClient.get<any[]>('/api/bills/');
       return response.data.map(transformBill);
     },
+    downloadPDF: async (id: string): Promise<void> => {
+      const response = await apiClient.get(`/api/bills/${id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `bill_${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    },
   },
 
   superadmin: {

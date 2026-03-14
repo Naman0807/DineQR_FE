@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Receipt, Settings } from 'lucide-react';
-import { InputNumber, Space, Typography } from 'antd';
+import { Receipt } from 'lucide-react';
 import { api } from '../../services/api';
-import type { OrderSessionWithOrders, BillWithOrders, BillCreate, PaymentMethod } from '../../types';
+import type { OrderSessionWithOrders, BillWithOrders, BillCreate, PaymentMethod, RestaurantSettings } from '../../types';
 import { BillView } from '../../components/admin/BillView';
 import styles from './BillingPage.module.css';
-
-const { Text } = Typography;
 
 export function BillingPage() {
   const [sessions, setSessions] = useState<OrderSessionWithOrders[]>([]);
@@ -14,13 +11,31 @@ export function BillingPage() {
   const [selectedSession, setSelectedSession] = useState<OrderSessionWithOrders | null>(null);
   const [bill, setBill] = useState<BillWithOrders | null>(null);
   const [discount, setDiscount] = useState(0);
-  const [taxRate, setTaxRate] = useState(10); // Default 10%
+  const [taxRate, setTaxRate] = useState<number | null>(null);
+  const [settings, setSettings] = useState<RestaurantSettings | null>(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     fetchSessions();
     const interval = setInterval(fetchSessions, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings: RestaurantSettings = await api.settings.get();
+        setSettings(settings);
+        setTaxRate(settings.restaurant_tax);
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+        setTaxRate(10);
+      } finally {
+        setSettingsLoaded(true);
+      }
+    };
+    fetchSettings();
   }, []);
 
   const fetchSessions = async () => {
@@ -64,7 +79,8 @@ export function BillingPage() {
   const calculateTotals = () => {
     if (!selectedSession) return { subtotal: 0, tax: 0, total: 0 };
     const subtotal = selectedSession.orders.reduce((sum, order) => sum + order.total_amount, 0);
-    const tax = subtotal * (taxRate / 100);
+    const effectiveTaxRate = settingsLoaded ? (taxRate ?? 10) : 10;
+    const tax = subtotal * (effectiveTaxRate / 100);
     const total = subtotal + tax - discount;
     return { subtotal, tax, total: Math.max(0, total) };
   };
@@ -118,6 +134,19 @@ export function BillingPage() {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!bill) return;
+    setProcessing(true);
+    try {
+      await api.bills.downloadPDF(bill.id);
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      alert('Failed to download PDF');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -134,26 +163,6 @@ export function BillingPage() {
             <div>
               <h1 className={styles.title}>Billing</h1>
               <p className={styles.subtitle}>Select a table to generate bill and process payment</p>
-            </div>
-
-            <div className={styles.taxSettings}>
-              <Space direction="vertical" size={2}>
-                <Space size={4}>
-                  <Settings size={14} color="var(--text-muted)" />
-                  <Text type="secondary" strong>TAX SETTINGS</Text>
-                </Space>
-                <Space>
-                  <Text type="secondary">GST (%)</Text>
-                  <InputNumber
-                    min={0}
-                    max={100}
-                    value={taxRate}
-                    onChange={(val) => setTaxRate(val || 0)}
-                    size="small"
-                    style={{ width: 60 }}
-                  />
-                </Space>
-              </Space>
             </div>
           </div>
 
@@ -196,11 +205,13 @@ export function BillingPage() {
               selectedSession={selectedSession}
               bill={bill}
               discount={discount}
-              taxRate={taxRate}
+              taxRate={settingsLoaded ? (taxRate ?? 10) : 10}
               setDiscount={setDiscount}
               processing={processing}
               onGenerateBill={handleGenerateBill}
               onPayment={handlePayment}
+              onDownloadPDF={handleDownloadPDF}
+              restaurantName={settings?.restaurant_name || 'Restaurant'}
             />
           ) : (
             <div className={styles.placeholderContainer}>
@@ -220,17 +231,13 @@ export function BillingPage() {
             selectedSession={selectedSession}
             bill={bill}
             discount={discount}
-            taxRate={taxRate}
+            taxRate={settingsLoaded ? (taxRate ?? 10) : 10}
             setDiscount={setDiscount}
             processing={processing}
             onGenerateBill={handleGenerateBill}
             onPayment={handlePayment}
-            onBack={() => {
-              setSelectedSession(null);
-              setBill(null);
-              setDiscount(0);
-            }}
-            isMobile={true}
+            onDownloadPDF={handleDownloadPDF}
+            restaurantName={settings?.restaurant_name || 'Restaurant'}
           />
         )}
       </div>

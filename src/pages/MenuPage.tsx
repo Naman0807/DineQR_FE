@@ -10,7 +10,6 @@ import {
   Space,
   Spin,
   Alert,
-  FloatButton,
   theme as antTheme,
   Flex
 } from 'antd';
@@ -207,7 +206,7 @@ export function MenuPage() {
                       <img
                         src={item.image_url}
                         alt={item.name}
-                        style={{ width: 80, height: 80, borderRadius: 8, objectCover: 'cover' }}
+                        style={{ width: 80, height: 80, borderRadius: 8, objectFit: 'cover' }}
                       />
                     ) : (
                       <Flex
