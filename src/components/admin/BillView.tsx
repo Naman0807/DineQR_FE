@@ -37,7 +37,10 @@ export const BillView: React.FC<BillViewProps> = ({
     const allItems = selectedSession.orders.flatMap(o => o.items);
     const totalQuantity = allItems.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = selectedSession.orders.reduce((sum, order) => sum + order.total_amount, 0);
-    const tax = subtotal * (taxRate / 100);
+
+    const isHistoricalBill = hideActions && bill !== null;
+    const tax = isHistoricalBill ? Number(bill!.tax_amount) : subtotal * (taxRate / 100);
+    const displayTaxRate = isHistoricalBill && subtotal > 0 ? (Number(bill!.tax_amount) / subtotal) * 100 : taxRate;
     const total = subtotal + tax - discount;
 
     const paymentMethods: { method: PaymentMethod; icon: React.ElementType; label: string }[] = [
@@ -140,7 +143,7 @@ export const BillView: React.FC<BillViewProps> = ({
                         </div>
                     )}
                     <div className={styles.taxRow}>
-                        <span>Tax ({taxRate}%)</span>
+                        <span>Tax ({displayTaxRate.toFixed(1)}%)</span>
                         <span>₹{tax.toFixed(2)}</span>
                     </div>
                 </div>

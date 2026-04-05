@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { getCustomerToken, removeCustomerToken } from '../services/tokenService';
 
 interface SessionContextType {
   tableId: string | null;
@@ -8,6 +9,9 @@ interface SessionContextType {
   setSession: (tableId: string, tableNumber: number, sessionId: string, qrToken: string) => void;
   clearSession: () => void;
   isSessionValid: () => boolean;
+  customerToken: string | null;
+  isCustomerAuthenticated: () => boolean;
+  clearCustomerAuth: () => void;
 }
 
 const SessionContext = createContext<SessionContextType | null>(null);
@@ -26,6 +30,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [qrToken, setQrToken] = useState<string | null>(() => {
     return sessionStorage.getItem('qrToken');
   });
+  const [customerToken, setCustomerTokenState] = useState<string | null>(() => {
+    return getCustomerToken();
+  });
 
   const setSession = useCallback((tableId: string, tableNumber: number, sessionId: string, qrToken: string) => {
     setTableId(tableId);
@@ -43,15 +50,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setTableNumber(null);
     setSessionId(null);
     setQrToken(null);
+    setCustomerTokenState(null);
     sessionStorage.removeItem('tableId');
     sessionStorage.removeItem('tableNumber');
     sessionStorage.removeItem('sessionId');
     sessionStorage.removeItem('qrToken');
+    removeCustomerToken();
   }, []);
 
   const isSessionValid = useCallback(() => {
     return tableId !== null && sessionId !== null;
   }, [tableId, sessionId]);
+
+  const isCustomerAuthenticated = useCallback(() => {
+    return customerToken !== null;
+  }, [customerToken]);
+
+  const clearCustomerAuth = useCallback(() => {
+    setCustomerTokenState(null);
+    removeCustomerToken();
+  }, []);
 
   return (
     <SessionContext.Provider value={{
@@ -62,6 +80,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setSession,
       clearSession,
       isSessionValid,
+      customerToken,
+      isCustomerAuthenticated,
+      clearCustomerAuth,
     }}>
       {children}
     </SessionContext.Provider>

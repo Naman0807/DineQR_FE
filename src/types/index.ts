@@ -259,3 +259,20 @@ export interface UpdateSettingsRequest {
   admin_phone?: string;
   restaurant_tax?: number;
 }
+
+export interface SendOTPRequest {
+  phone_number: string;
+  session_id: string;
+}
+
+export interface VerifyOTPRequest {
+  phone_number: string;
+  session_id: string;
+  otp_code: string;
+}
+
+export interface CustomerAuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in_minutes: number;
+}

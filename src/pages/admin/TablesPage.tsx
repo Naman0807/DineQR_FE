@@ -33,6 +33,11 @@ export function TablesPage() {
     }
   };
 
+  const getNextTableNumber = () => {
+    if (tables.length === 0) return 1;
+    return Math.max(...tables.map(t => t.table_number)) + 1;
+  };
+
   const handleCreateTable = async (tableNumber: number) => {
     setCreating(true);
     try {
@@ -143,6 +148,7 @@ export function TablesPage() {
         loading={creating}
         onCancel={() => setShowAddModal(false)}
         onConfirm={handleCreateTable}
+        suggestedTableNumber={getNextTableNumber()}
       />
 
       <QRModal

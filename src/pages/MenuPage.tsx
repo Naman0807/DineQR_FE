@@ -11,14 +11,18 @@ import {
   Spin,
   Alert,
   theme as antTheme,
-  Flex
+  Flex,
+  Modal,
+  message
 } from 'antd';
 import {
   ShoppingCartOutlined,
   PlusOutlined,
   MinusOutlined,
   SunOutlined,
-  MoonOutlined
+  MoonOutlined,
+  EyeOutlined,
+  LogoutOutlined
 } from '@ant-design/icons';
 import { api } from '../services/api';
 import { useSession } from '../stores/SessionContext';
@@ -33,8 +37,8 @@ export function MenuPage() {
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setSession, tableNumber, sessionId, qrToken } = useSession();
-  const { addItem, removeItem, updateQuantity, items, getItemCount } = useCart();
+  const { setSession, tableNumber, sessionId, qrToken, clearSession } = useSession();
+  const { addItem, removeItem, updateQuantity, items, getItemCount, clearCart } = useCart();
   const { isDarkMode, toggleTheme } = useTheme();
   const { token: themeToken } = antTheme.useToken();
 
@@ -104,6 +108,22 @@ export function MenuPage() {
     return item?.quantity || 0;
   };
 
+  const handleExit = () => {
+    Modal.confirm({
+      title: 'End Session?',
+      content: 'Are you sure you want to end your dining session? Your cart will be cleared.',
+      okText: 'Yes, End Session',
+      okButtonProps: { danger: true },
+      cancelText: 'Cancel',
+      onOk: () => {
+        clearSession();
+        clearCart();
+        message.success('Session ended. Thank you for dining with us!');
+        navigate(`/${restaurantSlug}/thank-you`);
+      },
+    });
+  };
+
   if (loading) {
     return (
       <Flex align="center" justify="center" style={{ minHeight: '100vh', background: themeToken.colorBgLayout }}>
@@ -168,6 +188,11 @@ export function MenuPage() {
         <Space>
           <Button
             type="text"
+            icon={<EyeOutlined style={{ fontSize: 20 }} />}
+            onClick={() => navigate(`/${restaurantSlug}/orders`)}
+          />
+          <Button
+            type="text"
             icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />}
             onClick={toggleTheme}
           />
@@ -178,6 +203,13 @@ export function MenuPage() {
               onClick={() => navigate(`/${restaurantSlug}/cart`)}
             />
           </Badge>
+          <Button
+            type="text"
+            danger
+            icon={<LogoutOutlined style={{ fontSize: 20 }} />}
+            onClick={handleExit}
+            title="End Session"
+          />
         </Space>
       </Header>
 

@@ -72,6 +72,22 @@
     color: var(--text-primary);
 }
 
+.itemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.itemName {
+    font-weight: 500;
+}
+
+.itemInstructions {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
 .itemQuantity {
     font-weight: 600;
     color: var(--brand-primary);

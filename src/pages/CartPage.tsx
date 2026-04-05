@@ -21,7 +21,7 @@ import {
 } from '@ant-design/icons';
 import { useCart } from '../stores/CartContext';
 import { useSession } from '../stores/SessionContext';
-import { api } from '../services/api';
+import { api, getCustomerToken } from '../services/api';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -43,6 +43,14 @@ export function CartPage() {
   const handleSubmitOrder = async () => {
     if (!sessionId || items.length === 0 || !restaurantSlug) return;
 
+    const customerToken = getCustomerToken();
+    if (!customerToken) {
+      navigate(`/${restaurantSlug}/verify-otp`, {
+        state: { redirectTo: `/${restaurantSlug}/cart` },
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.orders.create(
@@ -59,9 +67,16 @@ export function CartPage() {
       clearCart();
       message.success('Order placed successfully!');
       navigate(`/${restaurantSlug}/orders`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to submit order:', error);
-      message.error('Failed to submit order. Please try again.');
+      if (error.message?.includes('customer session expired') || error.message?.includes('verify OTP')) {
+        message.warning('Your session expired. Please verify OTP again.');
+        navigate(`/${restaurantSlug}/verify-otp`, {
+          state: { redirectTo: `/${restaurantSlug}/cart` },
+        });
+      } else {
+        message.error('Failed to submit order. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -187,7 +202,7 @@ export function CartPage() {
                     onClick={() => setExpandedItem(expandedItem === item.menu_item.id ? null : item.menu_item.id)}
                     style={{ textAlign: 'left', padding: 0, height: 'auto', color: themeToken.colorTextSecondary }}
                   >
-                    {item.special_instructions ? 'Edit instructions' : 'Add special instructions'}
+                    {item.specialInstructions ? 'Edit instructions' : 'Add special instructions'}
                   </Button>
 
                   {expandedItem === item.menu_item.id && (
@@ -237,7 +252,7 @@ export function CartPage() {
               onClick={handleSubmitOrder}
               style={{ height: 50, borderRadius: 12, fontWeight: 600 }}
             >
-              {submitting ? 'Placing Order...' : 'Place Order'}
+              {submitting ? 'Placing Order...' : !getCustomerToken() ? 'Verify & Place Order' : 'Place Order'}
             </Button>
           </div>
         </div>

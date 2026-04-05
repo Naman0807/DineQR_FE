@@ -1,8 +1,8 @@
 import type { MenuItem, MenuItemWithCategory, Order, OrderItem, Bill, BillWithOrders } from '../types';
 import apiClient from './apiClient';
-import { getToken, setToken, removeToken } from './tokenService';
+import { getToken, setToken, removeToken, getCustomerToken, setCustomerToken, removeCustomerToken } from './tokenService';
 
-export { getToken, setToken, removeToken };
+export { getToken, setToken, removeToken, getCustomerToken, setCustomerToken, removeCustomerToken };
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -158,7 +158,10 @@ export const api = {
   orders: {
     create: async (data: import('../types').OrderCreate, restaurantSlug?: string): Promise<Order> => {
       const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
-      const response = await apiClient.post<any>(`${base}/`, data);
+      const customerToken = getCustomerToken();
+      const response = await apiClient.post<any>(`${base}/`, data, {
+        headers: customerToken ? { Authorization: `Bearer ${customerToken}` } : {},
+      });
       return transformOrder(response.data);
     },
     getBySession: async (sessionId: string, restaurantSlug?: string): Promise<Order[]> => {
@@ -186,6 +189,24 @@ export const api = {
         ...response.data,
         orders: (response.data.orders || []).map(transformOrder),
       };
+    },
+  },
+
+  customer: {
+    sendOtp: async (data: import('../types').SendOTPRequest) => {
+      const response = await apiClient.post('/api/customer/send-otp', data);
+      return response.data;
+    },
+    verifyOtp: async (data: import('../types').VerifyOTPRequest): Promise<import('../types').CustomerAuthResponse> => {
+      const response = await apiClient.post('/api/customer/verify-otp', data);
+      const authData = response.data;
+      if (authData.access_token) {
+        setCustomerToken(authData.access_token);
+      }
+      return authData;
+    },
+    logout: () => {
+      removeCustomerToken();
     },
   },
 
@@ -235,6 +256,9 @@ export const api = {
       document.body.appendChild(link);
       link.click();
       link.remove();
+    },
+    delete: async (id: string): Promise<void> => {
+      await apiClient.delete(`/api/bills/${id}`);
     },
   },
 

@@ -6,9 +6,10 @@ interface AddTableModalProps {
     loading: boolean;
     onCancel: () => void;
     onConfirm: (tableNumber: number) => void;
+    suggestedTableNumber?: number;
 }
 
-const AddTableModal: React.FC<AddTableModalProps> = ({ visible, loading, onCancel, onConfirm }) => {
+const AddTableModal: React.FC<AddTableModalProps> = ({ visible, loading, onCancel, onConfirm, suggestedTableNumber = 1 }) => {
     const [form] = Form.useForm();
 
     const handleOk = async () => {
@@ -20,6 +21,12 @@ const AddTableModal: React.FC<AddTableModalProps> = ({ visible, loading, onCance
             console.error('Validation failed:', error);
         }
     };
+
+    React.useEffect(() => {
+        if (visible) {
+            form.setFieldsValue({ tableNumber: suggestedTableNumber });
+        }
+    }, [visible, suggestedTableNumber, form]);
 
     return (
         <Modal
@@ -36,7 +43,7 @@ const AddTableModal: React.FC<AddTableModalProps> = ({ visible, loading, onCance
             centered
             destroyOnClose
         >
-            <Form form={form} layout="vertical" initialValues={{ tableNumber: 1 }}>
+            <Form form={form} layout="vertical">
                 <Form.Item
                     name="tableNumber"
                     label="Table Number"

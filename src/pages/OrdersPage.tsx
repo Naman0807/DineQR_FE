@@ -10,6 +10,7 @@ import {
   Tag,
   List,
   Spin,
+  message,
   theme as antTheme
 } from 'antd';
 import {
@@ -20,7 +21,7 @@ import {
 } from '@ant-design/icons';
 import { useSession } from '../stores/SessionContext';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { api } from '../services/api';
+import { api, getCustomerToken, removeCustomerToken } from '../services/api';
 import type { Order } from '../types';
 
 const { Header, Content } = Layout;
@@ -42,6 +43,16 @@ export function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const customerToken = getCustomerToken();
+    if (!customerToken) {
+      message.warning('Please verify your phone to view orders.');
+      navigate(`/${restaurantSlug}/verify-otp`, {
+        state: { redirectTo: `/${restaurantSlug}/orders` },
+      });
+    }
+  }, [restaurantSlug, navigate]);
+
+  useEffect(() => {
     const fetchOrders = async () => {
       if (!sessionId) return;
       try {
@@ -49,8 +60,15 @@ export function OrdersPage() {
         setOrders(data.sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         ));
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch orders:', error);
+        if (error.message?.includes('customer session expired') || error.message?.includes('verify OTP')) {
+          removeCustomerToken();
+          message.warning('Your session expired. Please verify OTP again.');
+          navigate(`/${restaurantSlug}/verify-otp`, {
+            state: { redirectTo: `/${restaurantSlug}/orders` },
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -59,7 +77,7 @@ export function OrdersPage() {
     fetchOrders();
     const interval = setInterval(fetchOrders, 30000);
     return () => clearInterval(interval);
-  }, [sessionId, restaurantSlug]);
+  }, [sessionId, restaurantSlug, navigate]);
 
   useEffect(() => {
     if (lastMessage?.event === 'order_updated') {
@@ -170,12 +188,19 @@ export function OrdersPage() {
                         dataSource={order.items}
                         renderItem={item => (
                           <List.Item style={{ padding: '8px 0', border: 'none' }}>
-                            <Flex justify="space-between" style={{ width: '100%' }}>
-                              <Text>
-                                <Text strong>{item.quantity}x</Text>
-                                <span style={{ marginLeft: 12 }}>{item.menu_item_name}</span>
-                              </Text>
-                              <Text type="secondary">₹{(item.unit_price * item.quantity).toFixed(2)}</Text>
+                            <Flex vertical style={{ width: '100%' }}>
+                              <Flex justify="space-between">
+                                <Text>
+                                  <Text strong>{item.quantity}x</Text>
+                                  <span style={{ marginLeft: 12 }}>{item.menu_item_name}</span>
+                                </Text>
+                                <Text type="secondary">₹{(item.unit_price * item.quantity).toFixed(2)}</Text>
+                              </Flex>
+                              {item.special_instructions && (
+                                <Text type="secondary" style={{ fontSize: 12, marginTop: 2, marginLeft: 28 }}>
+                                  📝 {item.special_instructions}
+                                </Text>
+                              )}
                             </Flex>
                           </List.Item>
                         )}

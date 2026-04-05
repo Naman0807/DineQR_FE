@@ -17,6 +17,8 @@ import { BillingPage } from './pages/admin/BillingPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import { LandingPage } from './pages/LandingPage';
 import BillHistoryPage from './pages/admin/BillHistoryPage';
+import { CustomerOtpVerification } from './pages/CustomerOtpVerification';
+import { ThankYouPage } from './pages/ThankYouPage';
 
 import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 
@@ -119,6 +121,8 @@ function App() {
                     <Route path="/:restaurantSlug/menu" element={<MenuPage />} />
                     <Route path="/:restaurantSlug/cart" element={<CartPage />} />
                     <Route path="/:restaurantSlug/orders" element={<OrdersPage />} />
+                    <Route path="/:restaurantSlug/verify-otp" element={<CustomerOtpVerification />} />
+                    <Route path="/:restaurantSlug/thank-you" element={<ThankYouPage />} />
                     <Route path="/:restaurantSlug" element={<RestaurantSlugRedirect />} />
                     <Route path="/" element={<LandingPage />} />
                     <Route path="*" element={<Navigate to="/menu" replace />} />

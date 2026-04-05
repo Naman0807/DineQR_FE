@@ -10,7 +10,8 @@ import {
     RefreshCw,
     TrendingUp,
     CreditCard,
-    Receipt
+    Receipt,
+    Trash2
 } from 'lucide-react';
 import {
     Table,
@@ -25,7 +26,8 @@ import {
     Typography,
     Space,
     Tooltip,
-    Empty
+    Empty,
+    message
 } from 'antd';
 import { BillView } from '../../components/admin/BillView';
 import styles from './BillHistoryPage.module.css';
@@ -74,6 +76,17 @@ const BillHistoryPage: React.FC = () => {
             await api.bills.downloadPDF(billId);
         } catch (error) {
             console.error('Failed to download PDF:', error);
+        }
+    };
+
+    const handleDeleteBill = async (billId: string) => {
+        try {
+            await api.bills.delete(billId);
+            setBills(prev => prev.filter(b => b.id !== billId));
+            message.success('Bill deleted successfully');
+        } catch (error) {
+            console.error('Failed to delete bill:', error);
+            message.error('Failed to delete bill');
         }
     };
 
@@ -153,6 +166,22 @@ const BillHistoryPage: React.FC = () => {
                             icon={<Download size={18} />}
                             onClick={() => handleDownloadPDF(record.id)}
                             className={styles.downloadBtn}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete Bill">
+                        <Button
+                            type="text"
+                            danger
+                            icon={<Trash2 size={18} />}
+                            onClick={() => {
+                                Modal.confirm({
+                                    title: 'Delete Bill',
+                                    content: 'Are you sure you want to delete this bill? This action cannot be undone.',
+                                    okText: 'Delete',
+                                    okButtonProps: { danger: true },
+                                    onOk: () => handleDeleteBill(record.id),
+                                });
+                            }}
                         />
                     </Tooltip>
                 </Space>
@@ -277,7 +306,7 @@ const BillHistoryPage: React.FC = () => {
                             } as any}
                             bill={selectedBill}
                             discount={selectedBill.discount_amount}
-                            taxRate={5}
+                            taxRate={0}
                             setDiscount={() => { }}
                             processing={false}
                             onGenerateBill={() => { }}

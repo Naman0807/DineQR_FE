@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { getToken, removeToken } from './tokenService';
+import { getToken, removeToken, getCustomerToken, removeCustomerToken } from './tokenService';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -35,9 +35,15 @@ export const removeHeader = (name: string) => {
 // Request Interceptor
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const token = getToken();
-        if (token) {
-            config.headers.set('Authorization', `Bearer ${token}`);
+        // If Authorization header is already set manually (e.g., customer token for orders),
+        // don't override it with the admin token
+        const hasAuthHeader = config.headers.has('Authorization');
+
+        if (!hasAuthHeader) {
+            const token = getToken();
+            if (token) {
+                config.headers.set('Authorization', `Bearer ${token}`);
+            }
         }
 
         // Merge custom headers
@@ -62,17 +68,26 @@ apiClient.interceptors.response.use(
             const { status, data, config } = error.response;
 
             if (status === 401) {
-                removeToken();
-
-                // Only redirect if not already on an auth-related page and not an auth request
                 const currentPath = window.location.pathname;
-                const isAuthRequest = config.url?.includes('/auth/');
-                const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register');
+                const isAuthRequest = config.url?.includes('/auth/') || config.url?.includes('/customer/');
+                const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register') || currentPath.includes('/verify-otp');
 
-                if (!isAuthRequest && !isAuthPage) {
-                    const isSuperadminPath = currentPath.startsWith('/superadmin');
-                    const redirectPath = isSuperadminPath ? '/superadmin/login' : '/admin/login';
-                    window.location.href = redirectPath;
+                // Determine if this was a customer token request
+                const isCustomerRequest = config.url?.includes('/orders/') && config.url?.includes('POST');
+                const hasCustomerToken = getCustomerToken() !== null;
+
+                if (isCustomerRequest || hasCustomerToken) {
+                    removeCustomerToken();
+                    if (!isAuthRequest && !isAuthPage) {
+                        return Promise.reject(new Error(data?.detail || 'Customer session expired. Please verify OTP again.'));
+                    }
+                } else {
+                    removeToken();
+                    if (!isAuthRequest && !isAuthPage) {
+                        const isSuperadminPath = currentPath.startsWith('/superadmin');
+                        const redirectPath = isSuperadminPath ? '/superadmin/login' : '/admin/login';
+                        window.location.href = redirectPath;
+                    }
                 }
 
                 return Promise.reject(new Error(data?.detail || 'Session expired. Please login again.'));

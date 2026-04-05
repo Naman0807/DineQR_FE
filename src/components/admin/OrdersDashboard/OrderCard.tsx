@@ -44,7 +44,12 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                         <li key={item.id} className={styles.item}>
                             <div className={styles.itemDetails}>
                                 <span className={styles.itemQuantity}>{item.quantity}x</span>
-                                <span className={styles.itemName}>{item.menu_item_name}</span>
+                                <div className={styles.itemInfo}>
+                                    <span className={styles.itemName}>{item.menu_item_name}</span>
+                                    {item.special_instructions && (
+                                        <span className={styles.itemInstructions}>📝 {item.special_instructions}</span>
+                                    )}
+                                </div>
                             </div>
                             <span className={styles.itemPrice}>₹{(item.unit_price * item.quantity).toFixed(2)}</span>
                         </li>
