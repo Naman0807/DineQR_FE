@@ -89,7 +89,8 @@ const BillHistoryPage: React.FC = () => {
     const formatShortId = (id: string) => id.slice(0, 8).toUpperCase();
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-IN', {
+        const dStr = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
+        return new Date(dStr).toLocaleDateString('en-IN', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',

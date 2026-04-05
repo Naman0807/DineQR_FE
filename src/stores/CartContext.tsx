@@ -15,25 +15,39 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    const stored = localStorage.getItem('cart');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const syncToLocalStorage = (newItems: CartItem[]) => {
+    localStorage.setItem('cart', JSON.stringify(newItems));
+  };
 
   const addItem = useCallback((item: MenuItem, quantity = 1, specialInstructions?: string) => {
     setItems(prev => {
       const existingIndex = prev.findIndex(i => i.menu_item.id === item.id);
+      let updated: CartItem[];
       if (existingIndex >= 0) {
-        const updated = [...prev];
+        updated = [...prev];
         updated[existingIndex] = {
           ...updated[existingIndex],
           quantity: updated[existingIndex].quantity + quantity,
         };
-        return updated;
+      } else {
+        updated = [...prev, { menu_item: item, quantity, special_instructions: specialInstructions }];
       }
-      return [...prev, { menu_item: item, quantity, special_instructions: specialInstructions }];
+      syncToLocalStorage(updated);
+      return updated;
     });
   }, []);
 
   const removeItem = useCallback((menuItemId: string) => {
-    setItems(prev => prev.filter(i => i.menu_item.id !== menuItemId));
+    setItems(prev => {
+      const updated = prev.filter(i => i.menu_item.id !== menuItemId);
+      syncToLocalStorage(updated);
+      return updated;
+    });
   }, []);
 
   const updateQuantity = useCallback((menuItemId: string, quantity: number) => {
@@ -41,19 +55,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(menuItemId);
       return;
     }
-    setItems(prev => prev.map(i => 
-      i.menu_item.id === menuItemId ? { ...i, quantity } : i
-    ));
+    setItems(prev => {
+      const updated = prev.map(i => 
+        i.menu_item.id === menuItemId ? { ...i, quantity } : i
+      );
+      syncToLocalStorage(updated);
+      return updated;
+    });
   }, [removeItem]);
 
   const updateSpecialInstructions = useCallback((menuItemId: string, instructions: string) => {
-    setItems(prev => prev.map(i => 
-      i.menu_item.id === menuItemId ? { ...i, special_instructions: instructions } : i
-    ));
+    setItems(prev => {
+      const updated = prev.map(i => 
+        i.menu_item.id === menuItemId ? { ...i, special_instructions: instructions } : i
+      );
+      syncToLocalStorage(updated);
+      return updated;
+    });
   }, []);
 
   const clearCart = useCallback(() => {
     setItems([]);
+    localStorage.removeItem('cart');
   }, []);
 
   const getTotal = useCallback(() => {

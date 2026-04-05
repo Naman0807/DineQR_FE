@@ -98,12 +98,14 @@ export function OrdersDashboard() {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dStr = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+    return new Date(dStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   const getTimeAgo = (dateString: string) => {
-    const diff = Date.now() - new Date(dateString).getTime();
-    const minutes = Math.floor(diff / 60000);
+    const dStr = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+    const diff = Date.now() - new Date(dStr).getTime();
+    const minutes = Math.floor(Math.max(0, diff) / 60000);
     if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);

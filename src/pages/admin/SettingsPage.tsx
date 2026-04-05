@@ -124,16 +124,17 @@ const SettingsPage: React.FC = () => {
                                 <Input prefix={<Mail size={16} />} placeholder="admin@example.com" />
                             </Form.Item>
 
-                            <Form.Item
+                            {/* <Form.Item
                                 label="Phone Number"
                                 name="admin_phone"
+                                tooltip="Phone number can only be changed by the Superadmin."
                                 rules={[
                                     { required: true, message: 'Please enter phone number' },
                                     { pattern: /^\+\d{1,4}\d{7,12}$/, message: 'Please enter a valid phone number with country code (e.g., +919016112497)' }
                                 ]}
                             >
-                                <Input prefix={<Phone size={16} />} placeholder="+91 9016112497" />
-                            </Form.Item>
+                                <Input prefix={<Phone size={16} />} disabled placeholder="+91 9090909090" />
+                            </Form.Item> */}
 
                             <Form.Item
                                 label="Tax Percentage (%)"

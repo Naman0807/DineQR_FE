@@ -47,7 +47,8 @@ export const BillView: React.FC<BillViewProps> = ({
     ];
 
     const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
+        const dStr = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
+        const date = new Date(dStr);
         return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
