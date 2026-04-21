@@ -45,8 +45,8 @@ export function OrdersPage() {
   useEffect(() => {
     const customerToken = getCustomerToken();
     if (!customerToken) {
-      message.warning('Please verify your phone to view orders.');
-      navigate(`/${restaurantSlug}/verify-otp`, {
+      message.warning('Please login to view orders.');
+      navigate(`/${restaurantSlug}/register`, {
         state: { redirectTo: `/${restaurantSlug}/orders` },
       });
     }
@@ -64,8 +64,8 @@ export function OrdersPage() {
         console.error('Failed to fetch orders:', error);
         if (error.message?.includes('customer session expired') || error.message?.includes('verify OTP')) {
           removeCustomerToken();
-          message.warning('Your session expired. Please verify OTP again.');
-          navigate(`/${restaurantSlug}/verify-otp`, {
+          message.warning('Your session expired. Please login again.');
+          navigate(`/${restaurantSlug}/register`, {
             state: { redirectTo: `/${restaurantSlug}/orders` },
           });
         }

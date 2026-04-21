@@ -70,7 +70,7 @@ apiClient.interceptors.response.use(
             if (status === 401) {
                 const currentPath = window.location.pathname;
                 const isAuthRequest = config.url?.includes('/auth/') || config.url?.includes('/customer/');
-                const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register') || currentPath.includes('/verify-otp');
+                const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register') || currentPath.includes('/register');
 
                 // Determine if this was a customer token request
                 const isCustomerRequest = config.url?.includes('/orders/') && config.url?.includes('POST');
@@ -79,7 +79,7 @@ apiClient.interceptors.response.use(
                 if (isCustomerRequest || hasCustomerToken) {
                     removeCustomerToken();
                     if (!isAuthRequest && !isAuthPage) {
-                        return Promise.reject(new Error(data?.detail || 'Customer session expired. Please verify OTP again.'));
+                        return Promise.reject(new Error(data?.detail || 'Customer session expired. Please login again.'));
                     }
                 } else {
                     removeToken();

@@ -193,12 +193,8 @@ export const api = {
   },
 
   customer: {
-    sendOtp: async (data: import('../types').SendOTPRequest) => {
-      const response = await apiClient.post('/api/customer/send-otp', data);
-      return response.data;
-    },
-    verifyOtp: async (data: import('../types').VerifyOTPRequest): Promise<import('../types').CustomerAuthResponse> => {
-      const response = await apiClient.post('/api/customer/verify-otp', data);
+    register: async (data: import('../types').CustomerRegisterRequest): Promise<import('../types').CustomerAuthResponse> => {
+      const response = await apiClient.post<import('../types').CustomerAuthResponse>('/api/customer/register', data);
       const authData = response.data;
       if (authData.access_token) {
         setCustomerToken(authData.access_token);

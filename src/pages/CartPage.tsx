@@ -45,7 +45,7 @@ export function CartPage() {
 
     const customerToken = getCustomerToken();
     if (!customerToken) {
-      navigate(`/${restaurantSlug}/verify-otp`, {
+      navigate(`/${restaurantSlug}/register`, {
         state: { redirectTo: `/${restaurantSlug}/cart` },
       });
       return;
@@ -70,8 +70,8 @@ export function CartPage() {
     } catch (error: any) {
       console.error('Failed to submit order:', error);
       if (error.message?.includes('customer session expired') || error.message?.includes('verify OTP')) {
-        message.warning('Your session expired. Please verify OTP again.');
-        navigate(`/${restaurantSlug}/verify-otp`, {
+        message.warning('Your session expired. Please login again.');
+        navigate(`/${restaurantSlug}/register`, {
           state: { redirectTo: `/${restaurantSlug}/cart` },
         });
       } else {

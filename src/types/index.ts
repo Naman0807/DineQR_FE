@@ -260,15 +260,10 @@ export interface UpdateSettingsRequest {
   restaurant_tax?: number;
 }
 
-export interface SendOTPRequest {
+export interface CustomerRegisterRequest {
+  name: string;
   phone_number: string;
   session_id: string;
-}
-
-export interface VerifyOTPRequest {
-  phone_number: string;
-  session_id: string;
-  otp_code: string;
 }
 
 export interface CustomerAuthResponse {
