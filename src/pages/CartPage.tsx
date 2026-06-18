@@ -21,7 +21,8 @@ import {
 } from '@ant-design/icons';
 import { useCart } from '../stores/CartContext';
 import { useSession } from '../stores/SessionContext';
-import { api, getCustomerToken } from '../services/api';
+import { api } from '../services/api';
+import { getSession } from '../services/sessionStore';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -43,7 +44,7 @@ export function CartPage() {
   const handleSubmitOrder = async () => {
     if (!sessionId || items.length === 0 || !restaurantSlug) return;
 
-    const customerToken = getCustomerToken();
+    const { customerToken } = getSession();
     if (!customerToken) {
       navigate(`/${restaurantSlug}/register`, {
         state: { redirectTo: `/${restaurantSlug}/cart` },
@@ -202,7 +203,7 @@ export function CartPage() {
                     onClick={() => setExpandedItem(expandedItem === item.menu_item.id ? null : item.menu_item.id)}
                     style={{ textAlign: 'left', padding: 0, height: 'auto', color: themeToken.colorTextSecondary }}
                   >
-                    {item.specialInstructions ? 'Edit instructions' : 'Add special instructions'}
+                    {item.special_instructions ? 'Edit instructions' : 'Add special instructions'}
                   </Button>
 
                   {expandedItem === item.menu_item.id && (
@@ -252,7 +253,7 @@ export function CartPage() {
               onClick={handleSubmitOrder}
               style={{ height: 50, borderRadius: 12, fontWeight: 600 }}
             >
-              {submitting ? 'Placing Order...' : !getCustomerToken() ? 'Verify & Place Order' : 'Place Order'}
+              {submitting ? 'Placing Order...' : !getSession().customerToken ? 'Verify & Place Order' : 'Place Order'}
             </Button>
           </div>
         </div>

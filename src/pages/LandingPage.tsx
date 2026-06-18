@@ -8,7 +8,6 @@ import {
 	DashboardOutlined,
 	FileTextOutlined,
 	ThunderboltOutlined,
-	SafetyCertificateOutlined,
 	TeamOutlined,
 	CheckCircleOutlined,
 	ShopOutlined,

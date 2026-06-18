@@ -76,18 +76,6 @@ export function ThankYouPage() {
           <Text type="secondary" style={{ fontSize: 16, maxWidth: 320, lineHeight: 1.6, marginTop: 12 }}>
             We look forward to serving you again soon!
           </Text>
-
-          <Text
-            style={{
-              marginTop: 40,
-              fontSize: 13,
-              color: themeToken.colorTextTertiary,
-              cursor: 'pointer',
-            }}
-            onClick={() => navigate(`/${restaurantSlug}/menu`)}
-          >
-            Back to Menu
-          </Text>
         </Flex>
       </Content>
     </Layout>

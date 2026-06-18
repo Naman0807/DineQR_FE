@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { getToken, removeToken, getCustomerToken, removeCustomerToken } from './tokenService';
+import { getToken, removeToken } from './tokenService';
+import { getSession, updateSession } from './sessionStore';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -74,10 +75,10 @@ apiClient.interceptors.response.use(
 
                 // Determine if this was a customer token request
                 const isCustomerRequest = config.url?.includes('/orders/') && config.url?.includes('POST');
-                const hasCustomerToken = getCustomerToken() !== null;
+                const hasCustomerToken = getSession().customerToken !== null;
 
                 if (isCustomerRequest || hasCustomerToken) {
-                    removeCustomerToken();
+                    updateSession({ customerToken: null, customerName: null, customerPhone: null });
                     if (!isAuthRequest && !isAuthPage) {
                         return Promise.reject(new Error(data?.detail || 'Customer session expired. Please login again.'));
                     }

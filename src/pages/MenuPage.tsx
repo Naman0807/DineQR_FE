@@ -37,7 +37,7 @@ export function MenuPage() {
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setSession, tableNumber, sessionId, qrToken, clearSession } = useSession();
+  const { setSession, tableNumber, sessionId, qrToken, endSession } = useSession();
   const { addItem, removeItem, updateQuantity, items, getItemCount, clearCart } = useCart();
   const { isDarkMode, toggleTheme } = useTheme();
   const { token: themeToken } = antTheme.useToken();
@@ -79,7 +79,13 @@ export function MenuPage() {
         if (!sessionId && token) {
           const sessionData = await api.tables.getOrCreateSession(token, restaurantSlug);
           const tableData = await api.tables.getByToken(token, restaurantSlug);
-          setSession(tableData.id, sessionData.table_number, sessionData.session_id, token);
+          setSession({
+            tableId: tableData.id,
+            tableNumber: sessionData.table_number,
+            sessionId: sessionData.session_id,
+            qrToken: token,
+            restaurantSlug,
+          });
         }
 
         const [itemsData, categoriesData] = await Promise.all([
@@ -116,7 +122,7 @@ export function MenuPage() {
       okButtonProps: { danger: true },
       cancelText: 'Cancel',
       onOk: () => {
-        clearSession();
+        endSession();
         clearCart();
         message.success('Session ended. Thank you for dining with us!');
         navigate(`/${restaurantSlug}/thank-you`);

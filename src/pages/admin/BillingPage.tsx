@@ -122,6 +122,10 @@ export function BillingPage() {
     setProcessing(true);
     try {
       await api.bills.pay(bill.id, method);
+
+      const updatedBill = await api.bills.getBySession(bill.session_id);
+      setBill(updatedBill);
+
       setSessions(prev => prev.filter(s => s.id !== selectedSession?.id));
       setSelectedSession(null);
       setBill(null);

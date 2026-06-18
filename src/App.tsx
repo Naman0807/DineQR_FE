@@ -19,6 +19,7 @@ import { LandingPage } from './pages/LandingPage';
 import BillHistoryPage from './pages/admin/BillHistoryPage';
 import CustomerRegister from './pages/CustomerRegister';
 import { ThankYouPage } from './pages/ThankYouPage';
+import { useSessionGuard } from './hooks/useSessionGuard';
 
 import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
 
@@ -57,6 +58,12 @@ function LegacyAdminRouteRedirect() {
 
   const tail = location.pathname.replace(/^\/admin\/[^/]+/, '');
   return <Navigate to={`/${restaurantSlug}/admin${tail}`} replace />;
+}
+
+/** Renders null but activates the session guard hook inside SessionProvider */
+function SessionGuardInner() {
+  useSessionGuard();
+  return null;
 }
 
 function App() {
@@ -116,6 +123,7 @@ function App() {
             element={
               <CartProvider>
                 <SessionProvider>
+                  <SessionGuardInner />
                   <Routes>
                     <Route path="/menu" element={<MenuPage />} />
                     <Route path="/:restaurantSlug/menu" element={<MenuPage />} />

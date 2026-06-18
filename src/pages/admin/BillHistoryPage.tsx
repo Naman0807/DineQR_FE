@@ -96,7 +96,7 @@ const BillHistoryPage: React.FC = () => {
     );
 
     const totalRevenue = bills
-        .filter(b => b.payment_status === 'paid')
+        .filter(b => b.payments?.some(p => p.status === 'completed'))
         .reduce((sum, b) => sum + b.final_total, 0);
 
     const formatShortId = (id: string) => id.slice(0, 8).toUpperCase();
@@ -139,13 +139,31 @@ const BillHistoryPage: React.FC = () => {
         },
         {
             title: 'Status',
-            dataIndex: 'payment_status',
-            key: 'payment_status',
-            render: (status: string) => (
-                <Tag color={status === 'paid' ? 'success' : 'warning'} className={styles.statusTag}>
-                    {status.toUpperCase()}
-                </Tag>
-            ),
+            key: 'status',
+            render: (_: any, record: Bill) => {
+                const totalPaid = (record.payments || [])
+                    .filter(p => p.status === 'completed')
+                    .reduce((sum, p) => sum + p.amount, 0);
+                const isPaid = totalPaid >= record.final_total;
+                const hasPayments = (record.payments || []).length > 0;
+
+                let statusText = 'UNPAID';
+                let color: string = 'warning';
+
+                if (isPaid) {
+                    statusText = 'PAID';
+                    color = 'success';
+                } else if (hasPayments) {
+                    statusText = 'PARTIAL';
+                    color = 'processing';
+                }
+
+                return (
+                    <Tag color={color} className={styles.statusTag}>
+                        {statusText}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Actions',
@@ -232,7 +250,7 @@ const BillHistoryPage: React.FC = () => {
                     <Card bordered={false} className={styles.statCard}>
                         <Statistic
                             title={<Text type="secondary">Paid Bills</Text>}
-                            value={bills.filter(b => b.payment_status === 'paid').length}
+                            value={bills.filter(b => b.payments?.some(p => p.status === 'completed')).length}
                             prefix={<CreditCard size={20} className={styles.statIcon} />}
                         />
                     </Card>
@@ -283,7 +301,13 @@ const BillHistoryPage: React.FC = () => {
                                     type="primary"
                                     icon={<Download size={16} />}
                                     onClick={() => handleDownloadPDF(selectedBill.id)}
-                                    style={{ display: 'flex', alignItems: 'center', background: 'var(--accent-color)', borderColor: 'var(--accent-color)' }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        background: 'var(--brand-primary)',
+                                        borderColor: 'var(--brand-primary)',
+                                        color: '#ffffff',
+                                    }}
                                 >
                                     Download
                                 </Button>

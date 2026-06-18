@@ -21,7 +21,8 @@ import {
 } from '@ant-design/icons';
 import { useSession } from '../stores/SessionContext';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { api, getCustomerToken, removeCustomerToken } from '../services/api';
+import { api } from '../services/api';
+import { getSession, updateSession } from '../services/sessionStore';
 import type { Order } from '../types';
 
 const { Header, Content } = Layout;
@@ -43,7 +44,7 @@ export function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const customerToken = getCustomerToken();
+    const { customerToken } = getSession();
     if (!customerToken) {
       message.warning('Please login to view orders.');
       navigate(`/${restaurantSlug}/register`, {
@@ -63,7 +64,7 @@ export function OrdersPage() {
       } catch (error: any) {
         console.error('Failed to fetch orders:', error);
         if (error.message?.includes('customer session expired') || error.message?.includes('verify OTP')) {
-          removeCustomerToken();
+          updateSession({ customerToken: null, customerName: null, customerPhone: null });
           message.warning('Your session expired. Please login again.');
           navigate(`/${restaurantSlug}/register`, {
             state: { redirectTo: `/${restaurantSlug}/orders` },

@@ -1,8 +1,9 @@
-import type { MenuItem, MenuItemWithCategory, Order, OrderItem, Bill, BillWithOrders } from '../types';
+import type { MenuItem, MenuItemWithCategory, Order, OrderItem, Bill, BillWithOrders, Payment, PaymentCreate } from '../types';
 import apiClient from './apiClient';
-import { getToken, setToken, removeToken, getCustomerToken, setCustomerToken, removeCustomerToken } from './tokenService';
+import { getToken, setToken, removeToken } from './tokenService';
+import { getSession } from './sessionStore';
 
-export { getToken, setToken, removeToken, getCustomerToken, setCustomerToken, removeCustomerToken };
+export { getToken, setToken, removeToken };
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -35,6 +36,13 @@ function transformOrder(order: any): Order {
   };
 }
 
+function transformPayment(payment: any): Payment {
+  return {
+    ...payment,
+    amount: parseFloat(payment.amount) || 0,
+  };
+}
+
 function transformBill(bill: any): Bill {
   return {
     ...bill,
@@ -43,6 +51,7 @@ function transformBill(bill: any): Bill {
     discount_amount: parseFloat(bill.discount_amount) || 0,
     final_total: parseFloat(bill.final_total) || 0,
     table_number: bill.table_number || (bill.session && bill.session.table ? bill.session.table.table_number : undefined),
+    payments: (bill.payments || []).map(transformPayment),
   };
 }
 
@@ -158,7 +167,7 @@ export const api = {
   orders: {
     create: async (data: import('../types').OrderCreate, restaurantSlug?: string): Promise<Order> => {
       const base = restaurantSlug ? `/api/orders/${restaurantSlug}` : '/api/orders';
-      const customerToken = getCustomerToken();
+      const { customerToken } = getSession();
       const response = await apiClient.post<any>(`${base}/`, data, {
         headers: customerToken ? { Authorization: `Bearer ${customerToken}` } : {},
       });
@@ -195,14 +204,10 @@ export const api = {
   customer: {
     register: async (data: import('../types').CustomerRegisterRequest): Promise<import('../types').CustomerAuthResponse> => {
       const response = await apiClient.post<import('../types').CustomerAuthResponse>('/api/customer/register', data);
-      const authData = response.data;
-      if (authData.access_token) {
-        setCustomerToken(authData.access_token);
-      }
-      return authData;
+      return response.data;
     },
     logout: () => {
-      removeCustomerToken();
+      // Token cleanup handled by SessionContext.clearCustomerAuth / endSession
     },
   },
 
@@ -232,8 +237,8 @@ export const api = {
       return transformBill(response.data);
     },
     pay: async (id: string, paymentMethod: import('../types').PaymentMethod): Promise<Bill> => {
-      const response = await apiClient.post<any>(`/api/bills/${id}/pay`, null, {
-        params: { payment_method: paymentMethod }
+      const response = await apiClient.post<any>(`/api/bills/${id}/pay`, {
+        payment_method: paymentMethod
       });
       return transformBill(response.data);
     },
@@ -252,6 +257,14 @@ export const api = {
       document.body.appendChild(link);
       link.click();
       link.remove();
+    },
+    createPayment: async (billId: string, data: PaymentCreate): Promise<Payment> => {
+      const response = await apiClient.post<any>(`/api/bills/${billId}/payments`, data);
+      return transformPayment(response.data);
+    },
+    getPayments: async (billId: string): Promise<Payment[]> => {
+      const response = await apiClient.get<any[]>(`/api/bills/${billId}/payments`);
+      return response.data.map(transformPayment);
     },
     delete: async (id: string): Promise<void> => {
       await apiClient.delete(`/api/bills/${id}`);

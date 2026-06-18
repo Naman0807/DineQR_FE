@@ -1,8 +1,8 @@
 export type TableStatus = 'available' | 'occupied';
-export type SessionStatus = 'active' | 'closed';
+export type SessionStatus = 'active' | 'closed' | 'pending';
 export type OrderStatus = 'received' | 'preparing' | 'served';
 export type OrderItemStatus = 'pending' | 'completed';
-export type PaymentStatus = 'unpaid' | 'paid';
+export type PaymentStatus = 'pending' | 'completed' | 'failed';
 export type PaymentMethod = 'cash' | 'card' | 'upi';
 
 export interface Table {
@@ -97,6 +97,7 @@ export interface OrderItemCreate {
 export interface Order {
   id: string;
   session_id: string;
+  customer_id?: string;
   status: OrderStatus;
   total_amount: number;
   created_at: string;
@@ -122,6 +123,7 @@ export interface OrderSession {
   session_status: SessionStatus;
   started_at: string;
   ended_at?: string;
+  requires_approval?: boolean;
 }
 
 export interface OrderSessionWithOrders extends OrderSession {
@@ -135,11 +137,10 @@ export interface Bill {
   tax_amount: number;
   discount_amount: number;
   final_total: number;
-  payment_status: PaymentStatus;
-  payment_method?: PaymentMethod;
   created_at: string;
   paid_at?: string;
   table_number?: number;
+  payments: Payment[];
 }
 
 export interface BillWithOrders extends Bill {
@@ -155,8 +156,23 @@ export interface BillCreate {
 
 export interface BillUpdate {
   discount_amount?: number;
-  payment_status?: PaymentStatus;
-  payment_method?: PaymentMethod;
+}
+
+export interface Payment {
+  id: string;
+  bill_id: string;
+  customer_id?: string;
+  amount: number;
+  payment_method: PaymentMethod;
+  status: PaymentStatus;
+  restaurant_id: string;
+  created_at: string;
+}
+
+export interface PaymentCreate {
+  bill_id: string;
+  amount: number;
+  payment_method: PaymentMethod;
 }
 
 export interface WebSocketMessage {

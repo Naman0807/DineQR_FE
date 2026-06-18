@@ -49,6 +49,10 @@ export const BillView: React.FC<BillViewProps> = ({
         { method: 'upi', icon: Smartphone, label: 'UPI' },
     ];
 
+    const totalPayments = bill?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+    const isFullyPaid = bill ? totalPayments >= bill.final_total : false;
+    const remainingAmount = bill ? Math.max(0, bill.final_total - totalPayments) : total;
+
     const formatDate = (dateStr: string) => {
         const dStr = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
         const date = new Date(dStr);
@@ -79,7 +83,11 @@ export const BillView: React.FC<BillViewProps> = ({
                 <div className={styles.metaDivider} />
                 <div className={styles.metaItem}>
                     <span className={styles.metaLabel}>Amount</span>
-                    <span className={styles.metaValue}>₹ {total.toFixed(2)} {bill?.payment_status === 'paid' ? 'PAID' : ''}</span>
+                    <span className={styles.metaValue}>
+                        ₹ {total.toFixed(2)}
+                        {bill && isFullyPaid && <span className={styles.paidBadge}> PAID</span>}
+                        {bill && !isFullyPaid && totalPayments > 0 && <span className={styles.partialBadge}> PARTIAL</span>}
+                    </span>
                 </div>
                 <div className={styles.metaDivider} />
                 <div className={styles.metaItem}>
@@ -210,7 +218,7 @@ export const BillView: React.FC<BillViewProps> = ({
                                 </button>
                             </div>
 
-                            {!bill.paid_at && (
+                            {!isFullyPaid && (
                                 <div className={styles.discountEditSection}>
                                     <div className={styles.discountLabel}>Add Discount</div>
                                     <div className={styles.discountInputWrapper}>
@@ -228,19 +236,21 @@ export const BillView: React.FC<BillViewProps> = ({
                                 </div>
                             )}
 
-                            <div className={styles.paymentGrid}>
-                                {paymentMethods.map(({ method, icon: Icon, label }) => (
-                                    <button
-                                        key={method}
-                                        onClick={() => onPayment(method)}
-                                        disabled={processing}
-                                        className={styles.paymentBtn}
-                                    >
-                                        <Icon size={24} />
-                                        <span className={styles.paymentLabel}>{label}</span>
-                                    </button>
-                                ))}
-                            </div>
+                            {!isFullyPaid && (
+                                <div className={styles.paymentGrid}>
+                                    {paymentMethods.map(({ method, icon: Icon, label }) => (
+                                        <button
+                                            key={method}
+                                            onClick={() => onPayment(method)}
+                                            disabled={processing || remainingAmount <= 0}
+                                            className={styles.paymentBtn}
+                                        >
+                                            <Icon size={24} />
+                                            <span className={styles.paymentLabel}>{label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

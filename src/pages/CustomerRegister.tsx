@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Input, Button, message } from 'antd';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Input, Button, message, theme as antTheme } from 'antd';
 import { api } from '../services/api';
-
-const { Item } = Input;
+import { useSession } from '../stores/SessionContext';
 
 export default function CustomerRegister() {
   const [name, setName] = useState('');
@@ -11,14 +10,16 @@ export default function CustomerRegister() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
+  const location = useLocation();
+  const { sessionId, setCustomerAuth } = useSession();
+  const { token: themeToken } = antTheme.useToken();
 
   useEffect(() => {
-    const sessionData = sessionStorage.getItem('dineqr_session');
-    if (!sessionData) {
+    if (!sessionId) {
       message.error('No session found. Please scan QR code again.');
       navigate(`/${restaurantSlug}`);
     }
-  }, [navigate, restaurantSlug]);
+  }, [sessionId, navigate, restaurantSlug]);
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -32,17 +33,25 @@ export default function CustomerRegister() {
 
     setLoading(true);
     try {
-      const sessionData = JSON.parse(sessionStorage.getItem('dineqr_session') || '{}');
-      const response = await api.customer.register({
+      if (!sessionId) {
+        message.error('Session not found. Please scan QR code again.');
+        navigate(`/${restaurantSlug}`);
+        return;
+      }
+      const authData = await api.customer.register({
         name: name.trim(),
         phone_number: phone.trim(),
-        session_id: sessionData.session_id,
+        session_id: sessionId,
       });
+
+      if (authData.access_token) {
+        setCustomerAuth(authData.access_token, name.trim(), phone.trim());
+      }
+
+      message.success('Welcome!');
       
-      localStorage.setItem('dineqr_customer_token', response.access_token);
-      message.success('Welcome! Redirecting to menu...');
-      
-      navigate(`/${restaurantSlug}/menu`);
+      const from = (location.state as { redirectTo?: string })?.redirectTo || `/${restaurantSlug}/menu`;
+      navigate(from);
     } catch (error: any) {
       message.error(error.message || 'Registration failed. Please try again.');
     } finally {
@@ -51,27 +60,62 @@ export default function CustomerRegister() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Welcome!</h1>
-        <p style={styles.subtitle}>Enter your details to continue</p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: themeToken.colorBgLayout,
+      padding: '20px',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '400px',
+        background: themeToken.colorBgContainer,
+        borderRadius: themeToken.borderRadius,
+        padding: '32px',
+        boxShadow: `0 2px 8px ${themeToken.colorShadow}`,
+        border: `1px solid ${themeToken.colorBorder}`,
+      }}>
+        <h1 style={{
+          fontSize: '28px',
+          fontWeight: 'bold',
+          marginBottom: '8px',
+          textAlign: 'center',
+          color: themeToken.colorText,
+        }}>Welcome!</h1>
+        <p style={{
+          color: themeToken.colorTextSecondary,
+          marginBottom: '32px',
+          textAlign: 'center',
+        }}>Enter your details to continue</p>
         
-        <div style={styles.form}>
-          <label style={styles.label}>Your Name</label>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}>
+          <label style={{
+            fontWeight: 500,
+            marginBottom: '4px',
+            color: themeToken.colorText,
+          }}>Your Name</label>
           <Input
             placeholder="Enter your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={styles.input}
             size="large"
           />
           
-          <label style={styles.label}>Phone Number</label>
+          <label style={{
+            fontWeight: 500,
+            marginBottom: '4px',
+            color: themeToken.colorText,
+          }}>Phone Number</label>
           <Input
             placeholder="Enter phone number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            style={styles.input}
             size="large"
           />
           
@@ -81,7 +125,10 @@ export default function CustomerRegister() {
             loading={loading}
             size="large"
             block
-            style={styles.button}
+            style={{
+              height: '48px',
+              marginTop: '16px',
+            }}
           >
             Continue
           </Button>
@@ -90,49 +137,3 @@ export default function CustomerRegister() {
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#f5f5f5',
-    padding: '20px',
-  },
-  card: {
-    width: '100%',
-    maxWidth: '400px',
-    background: '#fff',
-    borderRadius: '12px',
-    padding: '32px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    marginBottom: '8px',
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#666',
-    marginBottom: '32px',
-    textAlign: 'center',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  label: {
-    fontWeight: 500,
-    marginBottom: '4px',
-  },
-  input: {
-    height: '48px',
-  },
-  button: {
-    height: '48px',
-    marginTop: '16px',
-  },
-};
