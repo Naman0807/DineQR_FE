@@ -57,3 +57,16 @@ No test framework is configured. Do not look for `jest`/`playwright`.
 | `src/theme/ThemeContext.tsx` | Dark/light theme toggle + Ant Design config |
 | `src/types/index.ts` | All TypeScript interfaces/types |
 | `src/index.css` | Global CSS variables, dark mode, print, safe-area, spinner |
+
+## Branching Rules (MANDATORY)
+
+Read `BRANCHING.md` at the repo root and follow it. Summary:
+
+1. `main` = production. NEVER commit directly.
+2. `dev` = shared integration base. ALL new work branches off `dev`. ALL completed features merge back into `dev`.
+3. Feature branches: `feature/<short-description>`, one per task.
+4. NEVER work directly on `dev` or `main` — always on a feature branch.
+5. Before starting ANY task: `git checkout dev` → `git pull origin dev` → create feature branch.
+6. When a feature is complete & tested: merge feature → `dev`, push `dev`.
+7. Definition of Done must pass before merging into `dev` (see BRANCHING.md).
+8. NEVER force-push to `dev` or `main`.
