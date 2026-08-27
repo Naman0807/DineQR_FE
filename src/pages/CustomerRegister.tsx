@@ -74,7 +74,7 @@ export default function CustomerRegister() {
         background: themeToken.colorBgContainer,
         borderRadius: themeToken.borderRadius,
         padding: '32px',
-        boxShadow: `0 2px 8px ${themeToken.colorShadow}`,
+        boxShadow: `0 2px 8px ${themeToken.boxShadowTertiary}`,
         border: `1px solid ${themeToken.colorBorder}`,
       }}>
         <h1 style={{

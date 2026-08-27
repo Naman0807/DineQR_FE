@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Layout, Typography, Flex, Spin, theme as antTheme } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
 import { api } from '../services/api';
@@ -9,7 +9,6 @@ const { Title, Text } = Typography;
 
 export function ThankYouPage() {
   const { restaurantSlug } = useParams<{ restaurantSlug: string }>();
-  const navigate = useNavigate();
   const { token: themeToken } = antTheme.useToken();
   const [restaurantName, setRestaurantName] = useState('');
   const [loading, setLoading] = useState(true);
